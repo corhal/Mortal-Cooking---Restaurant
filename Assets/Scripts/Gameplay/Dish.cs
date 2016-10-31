@@ -200,10 +200,7 @@ public class Dish : MonoBehaviour {
 					readyCount++;
 				}
 
-				Debug.Log (readyCount.ToString());
-				Debug.Log (ingredients.Count.ToString ());
-				if (readyCount == ingredients.Count) {
-					Debug.Log ("Dish ready");
+				if (readyCount == ingredients.Count) {					
 					OnDishReady (this);
 				}
 			}
@@ -220,8 +217,7 @@ public class Dish : MonoBehaviour {
 				if (Player.instance.MyMission.Variation == "memory") {
 					IngredientsAnimation.gameObject.SetActive (false);
 				}
-				startInitialize = false;
-				Debug.Log (initTimer);
+				startInitialize = false;			
 				OnDishInitialized (this);
 			}
 		}

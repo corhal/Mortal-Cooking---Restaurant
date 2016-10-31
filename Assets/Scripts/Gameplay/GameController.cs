@@ -160,7 +160,6 @@ public class GameController : MonoBehaviour {
 		ghostDish.GetComponentInChildren<SpriteRenderer> ().sprite = dish.DishSprite.sprite;
 		ghostDish.GetComponentInChildren<SpriteRenderer> ().color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
 		lastIngredient = true;
-		Debug.Log (lastIngredient);
 	}
 
 	void Start() {	
@@ -413,6 +412,7 @@ public class GameController : MonoBehaviour {
 			DishCountLabel.text = "You won!";
 			Player.instance.StarCount = starCount;
 			Player.instance.HasWon = true;
+			GiveReward (5);
 			readyToEnd = true;			
 		}
 		if (readyToEnd) {
@@ -485,6 +485,10 @@ public class GameController : MonoBehaviour {
 		ingredient.mySlider.maxValue = SpawnTime;
 
 		spawnedIngredients.Add (ingredient);
+	}
+
+	void GiveReward(int rewardCount) {
+		Player.instance.Soulstones = rewardCount;
 	}
 
 	void SpawnGroup() {

@@ -5,7 +5,15 @@ using System.Collections.Generic;
 
 public class Cook : MonoBehaviour {
 
+	public int Id;
+
+	public CookData cookData;
+
+	Restaurant restaurant;
+	public GameObject ButtonContainer;
 	Text levelLabel;
+
+	public bool Selected;
 
 	public int Level;
 	public int Soulstones;
@@ -13,7 +21,11 @@ public class Cook : MonoBehaviour {
 	public int[,] RangeGoldPerClientByLevel;
 	public int[] SoulstoneRequirementsPerLevel;
 
+	public delegate void CookClickedEventHandler (Cook cook);
+	public static event CookClickedEventHandler OnCookClicked;
+
 	void Awake() {
+		restaurant = GameObject.FindObjectOfType<Restaurant> ();
 		RangeGoldPerClientByLevel = new int[,] {
 			{1, 3},
 			{2, 4},
@@ -24,12 +36,27 @@ public class Cook : MonoBehaviour {
 		levelLabel = GetComponentInChildren<Text> ();
 	}
 
-	void OnMouseDown() {
-		AddSoulstones (5);
+	void Start() {
+		levelLabel.text = Level.ToString ();
+	}
+
+	void OnMouseUpAsButton() {		
+		Debug.Log ("Clicked cook");
+		OnCookClicked (this);
+		//AddSoulstones (5);
+	}
+
+	public void ToggleSelect() {
+		Selected = !Selected;
+		ButtonContainer.SetActive (!ButtonContainer.activeSelf);
 	}
 
 	public int GenerateGold() {
 		return Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1]);
+	}
+
+	public int GenerateGoldPerClients(int clients) {
+		return ((RangeGoldPerClientByLevel [Level - 1, 0] + RangeGoldPerClientByLevel [Level - 1, 1]) / 2) * clients;
 	}
 
 	public void AddSoulstones(int amount) {
@@ -42,5 +69,15 @@ public class Cook : MonoBehaviour {
 		}
 	}
 
+	public void Play() {
+		restaurant.SetMission (gameObject.GetComponentInChildren<MissionData> ());
+		restaurant.ChangeScene (1);
+	}
 
+	public void InitializeFromData(CookData data) {
+		Id = data.Id;
+		transform.position = new Vector3(data.x, data.y, data.z);
+		Level = data.Level;
+		Soulstones = data.Soulstones;
+	}
 }

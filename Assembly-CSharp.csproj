@@ -55,12 +55,18 @@
      <Compile Include="Assets\Scripts\Gameplay\LerpScore.cs" />
      <Compile Include="Assets\Scripts\Gameplay\MenuController.cs" />
      <Compile Include="Assets\Scripts\Gameplay\MissionData.cs" />
-     <Compile Include="Assets\Scripts\Gameplay\Player.cs" />
      <Compile Include="Assets\Scripts\Gameplay\Storage.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\Builder.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Building.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\BuildingData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Cook.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\CookData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Drag.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\Player.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\PlayerData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Restaurant.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\RestaurantData.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\SaveLoad.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
