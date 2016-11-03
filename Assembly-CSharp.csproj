@@ -59,14 +59,21 @@
      <Compile Include="Assets\Scripts\Restaurant\Builder.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Building.cs" />
      <Compile Include="Assets\Scripts\Restaurant\BuildingData.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\BuildingNode.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\CameraDrag.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Cook.cs" />
      <Compile Include="Assets\Scripts\Restaurant\CookData.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\Customer.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Drag.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Player.cs" />
      <Compile Include="Assets\Scripts\Restaurant\PlayerData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Restaurant.cs" />
      <Compile Include="Assets\Scripts\Restaurant\RestaurantData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\SaveLoad.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\SelectClearer.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\ShopWindow.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\TooltipShower.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\ZChecker.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

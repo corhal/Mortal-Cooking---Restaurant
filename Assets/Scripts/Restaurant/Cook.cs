@@ -7,11 +7,13 @@ public class Cook : MonoBehaviour {
 
 	public int Id;
 
+	public int[] Dishes;
 	public CookData cookData;
 
 	Restaurant restaurant;
 	public GameObject ButtonContainer;
-	Text levelLabel;
+	public GameObject RaidButton;
+	public bool RaidReady;
 
 	public bool Selected;
 
@@ -24,6 +26,10 @@ public class Cook : MonoBehaviour {
 	public delegate void CookClickedEventHandler (Cook cook);
 	public static event CookClickedEventHandler OnCookClicked;
 
+	public Text LevelLabel;
+	public Text SoulstonesLabel;
+	public Slider SoulstonesSlider;
+
 	void Awake() {
 		restaurant = GameObject.FindObjectOfType<Restaurant> ();
 		RangeGoldPerClientByLevel = new int[,] {
@@ -33,11 +39,11 @@ public class Cook : MonoBehaviour {
 			{4, 6},
 			{5, 7}
 		};
-		levelLabel = GetComponentInChildren<Text> ();
+		LevelLabel = GetComponentInChildren<Text> ();
 	}
 
 	void Start() {
-		levelLabel.text = Level.ToString ();
+		UpdateLabels ();
 	}
 
 	void OnMouseUpAsButton() {		
@@ -49,13 +55,25 @@ public class Cook : MonoBehaviour {
 	public void ToggleSelect() {
 		Selected = !Selected;
 		ButtonContainer.SetActive (!ButtonContainer.activeSelf);
+		if (!RaidReady) {
+			RaidButton.SetActive (false);
+		}
+		UpdateLabels ();
+	}
+
+	public void Deselect() {
+		Selected = false;
+		ButtonContainer.SetActive (false);
+		UpdateLabels ();
 	}
 
 	public int GenerateGold() {
-		return Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1]);
+		int gold = Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);
+		//Debug.Log("Gold min: " + (RangeGoldPerClientByLevel [Level - 1, 0] + ", max: " + RangeGoldPerClientByLevel [Level - 1, 1] + ", rolled: " + gold));
+		return gold;
 	}
 
-	public int GenerateGoldPerClients(int clients) {
+	public int GenerateGoldPerClients(int clients) {		
 		return ((RangeGoldPerClientByLevel [Level - 1, 0] + RangeGoldPerClientByLevel [Level - 1, 1]) / 2) * clients;
 	}
 
@@ -64,14 +82,28 @@ public class Cook : MonoBehaviour {
 			Soulstones += amount;
 			if (Level < SoulstoneRequirementsPerLevel.Length && Soulstones >= SoulstoneRequirementsPerLevel[Level - 1]) {
 				Level++;
-				levelLabel.text = Level.ToString ();
 			}
+			UpdateLabels ();
 		}
 	}
 
 	public void Play() {
-		restaurant.SetMission (gameObject.GetComponentInChildren<MissionData> ());
-		restaurant.ChangeScene (1);
+		if (restaurant.SpendEnergy(restaurant.EnergyCostPerMission)) {
+			restaurant.SetMission (gameObject.GetComponentInChildren<MissionData> ());
+			restaurant.ChangeScene (1);
+		}
+	}
+
+	public void Raid() {
+		if (restaurant.SpendEnergy(restaurant.EnergyCostPerMission)) {
+			float coinToss = Random.Range (0.0f, 1.0f);
+			int rand = Random.Range (1, 4);
+			if (coinToss < 0.5f) {
+				rand = 0;
+			}
+			AddSoulstones (rand);
+			restaurant.AddGold (restaurant.GoldReward);
+		}
 	}
 
 	public void InitializeFromData(CookData data) {
@@ -79,5 +111,15 @@ public class Cook : MonoBehaviour {
 		transform.position = new Vector3(data.x, data.y, data.z);
 		Level = data.Level;
 		Soulstones = data.Soulstones;
+		RaidReady = data.RaidReady;
+		Dishes = new int[data.Dishes.Length];
+		data.Dishes.CopyTo (Dishes, 0);
+	}
+
+	public void UpdateLabels() {
+		LevelLabel.text = Level.ToString ();
+		SoulstonesLabel.text = Soulstones + "/" + SoulstoneRequirementsPerLevel [Level - 1];
+		SoulstonesSlider.maxValue = SoulstoneRequirementsPerLevel [Level - 1];
+		SoulstonesSlider.value = Soulstones;
 	}
 }

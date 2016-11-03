@@ -9,8 +9,10 @@ public class CookData {
 	public float z;
 
 	public int Id;
+	public int[] Dishes;
 	public int Level;
 	public int Soulstones;
+	public bool RaidReady;
 
 	public void InitializeFromCook(Cook cook) {
 		x = cook.transform.position.x;
@@ -20,5 +22,8 @@ public class CookData {
 		Id = cook.Id;
 		Level = cook.Level;
 		Soulstones = cook.Soulstones;
+		RaidReady = cook.RaidReady;
+		Dishes = new int[cook.Dishes.Length];
+		cook.Dishes.CopyTo (Dishes, 0);
 	}
 }

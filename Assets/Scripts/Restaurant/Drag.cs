@@ -34,15 +34,19 @@ public class Drag : MonoBehaviour {
 		if (selected) {
 			Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f);
 			transform.position = Camera.main.ScreenToWorldPoint(newPosition) + offset;
-
+			float factor = 0.375f;
 			if (SnapToGrid) {
-				transform.position = new Vector3 (CeilTo05 (transform.position.x), CeilTo05 (transform.position.y), CeilTo05 (transform.position.z));
+				transform.position = new Vector3 (Snap (transform.position.x, factor), Snap (transform.position.y, factor), Snap (transform.position.z, factor));
 			}
+			ZChecker checker = GetComponent<ZChecker> ();
+			checker.CheckZ ();
 		}
 	}
 
-	float CeilTo05(float number) {
-		return Mathf.Floor (number) + 0.5f;
+	float Snap(float number, float factor) {
+		int multiple =  Mathf.RoundToInt(number/factor);
+
+		return multiple*factor;
 	}
 
 	public void ToggleSelect() {

@@ -6,10 +6,16 @@ using System.Collections;
 public class RestaurantData {
 
 	public System.DateTime LastTime;
-	public int BuildingCost;
+	//public int BuildingCost;
 	public int Gold;
 	public int Prestige;
 	public int PrestigeLevel;
+	public int[] CurrentBuildings;
+	public int Session;
+
+	public int Energy;
+
+	public int CookSpawnPointsCount = 5;
 
 	public List<CookData> CookDatas;
 	public List<BuildingData> BuildingDatas;
@@ -25,9 +31,12 @@ public class RestaurantData {
 		BuildingDatas = new List<BuildingData> ();
 	}
 
-	public void InitializeFromRestaurant(Restaurant restaurant) {
-		Debug.Log ("Saving restaurant...");
-		BuildingCost = restaurant.BuildingCost;
+	public void InitializeFromRestaurant(Restaurant restaurant) {	
+		Session = restaurant.Session;	
+		CurrentBuildings = restaurant.CurrentBuildings;
+		Energy = restaurant.Energy;
+		CookSpawnPointsCount = restaurant.CookSpawnPoints.Count;
+		//BuildingCost = restaurant.BuildingCost;
 		LastTime = System.DateTime.Now;
 		NeedsWipe = restaurant.NeedsWipe;
 		Gold = restaurant.Gold;

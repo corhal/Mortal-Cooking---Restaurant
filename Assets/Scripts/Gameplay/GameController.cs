@@ -412,12 +412,12 @@ public class GameController : MonoBehaviour {
 			DishCountLabel.text = "You won!";
 			Player.instance.StarCount = starCount;
 			Player.instance.HasWon = true;
-			GiveReward (5);
 			readyToEnd = true;			
 		}
 		if (readyToEnd) {
 			EndTimer -= Time.deltaTime;
 			if (EndTimer <= 0.0f) {
+				GiveReward ();
 				Restart ();
 			}
 		} else {
@@ -487,8 +487,14 @@ public class GameController : MonoBehaviour {
 		spawnedIngredients.Add (ingredient);
 	}
 
-	void GiveReward(int rewardCount) {
-		Player.instance.Soulstones = rewardCount;
+	void GiveReward() {
+		float coinToss = Random.Range (0.0f, 1.0f);
+		int rand = Random.Range (1, 4);
+		if (coinToss < 0.5f) {
+			rand = 0;
+		}
+		Player.instance.GoldFromMission = Restaurant.instance.GoldReward;
+		Player.instance.Soulstones = rand;
 	}
 
 	void SpawnGroup() {

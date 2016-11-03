@@ -8,6 +8,7 @@ public class Player : MonoBehaviour {
 	public RestaurantData MyRestaurant;
 	public PlayerData MyPlayer;
 
+	//public bool ShouldRaidCook;
 	public bool FirstTime = true;
 	public bool HasWon;
 	public int StarCount;
@@ -16,6 +17,8 @@ public class Player : MonoBehaviour {
 
 	public int currentCookId;
 	public int Soulstones;
+
+	public int GoldFromMission;
 
 	void Awake() {
 		
@@ -43,8 +46,11 @@ public class Player : MonoBehaviour {
 		Debug.Log (SaveLoad.savedData);
 		if (SaveLoad.savedData != null) {				
 			MyRestaurant = SaveLoad.savedData;
+			Debug.Log (MyRestaurant.Session.ToString());
+
+			Debug.Log (MyRestaurant.Session.ToString());
 			if (Restaurant.instance.Prestige == 0) {
-				Restaurant.instance.InitializeFromData (MyRestaurant);
+				//Restaurant.instance.InitializeFromData (MyRestaurant);
 			}
 		} else {
 			MyRestaurant = new RestaurantData (0, 0, 1);
@@ -61,6 +67,14 @@ public class Player : MonoBehaviour {
 		MyRestaurant.InitializeFromRestaurant (Restaurant.instance);
 		Debug.Log ("Date-time when player saves: " + MyRestaurant.LastTime);
 		SaveLoad.Save ();
+	}
+
+	public void Load() {
+		Debug.Log ("Player loads");
+		SaveLoad.Load ();
+		if (SaveLoad.savedData != null) {				
+			MyRestaurant = SaveLoad.savedData;
+		}
 	}
 
 	/*public void OnLevelWasLoaded() {

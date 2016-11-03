@@ -22,4 +22,8 @@ public class Storage : MonoBehaviour {
 	public Sprite[] HandSprites;
 
 	public Sprite[] ArrowSprites;
+
+	/* Дальше картинки для ресторана */
+
+	public Sprite[] FurnitureSprites;
 }
