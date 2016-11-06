@@ -9,7 +9,7 @@ public class ShopWindow : MonoBehaviour {
 
 	Storage storage;
 	public BuildingNode[] BuildingNodes;
-	public int[] Costs;
+	//public int[] Costs;
 	public int[] CurrentBuildings;
 	public int[] MaxBuildings;
 
@@ -30,24 +30,30 @@ public class ShopWindow : MonoBehaviour {
 			BuildingNodes [i].BuildButton.GetComponent<Button>().onClick.AddListener (delegate {				
 				Restaurant.instance.Toggle(this.gameObject);
 			});
+
+			BuildingNodes [i].MyBuilding = Builder.SBuildingPrefabs [i].GetComponent<Building> ();
+			Debug.Log("Cost of building: " + BuildingNodes[i].MyBuilding.Cost);
 		}
-		Costs = new int[Restaurant.instance.Costs.Length];
-		Restaurant.instance.Costs.CopyTo (Costs, 0);
+		//Costs = new int[Restaurant.instance.Costs.Length];
+		//Restaurant.instance.Costs.CopyTo (Costs, 0);
 		UpdateWindow ();
 	}
 
 	public void UpdateWindow() {
+		Debug.Log ("Updating window");
 		for (int i = 0; i < storage.FurnitureSprites.Length; i++) {
-			string costString = Costs [i].ToString ();
-			if (Costs[i] > 1000) {
-				costString = (Costs [i] / 1000) + "k";
+			int cost = BuildingNodes [i].MyBuilding.InitialCost; // Временно, потому что мы обращаемся к хранилищу префабов
+			int prestige = BuildingNodes [i].MyBuilding.InitialPrestige;
+			string costString = cost.ToString ();
+			if (cost > 1000) {
+				costString = (cost / 1000) + "k";
 			}
 			BuildingNodes [i].BuildButton.GetComponentInChildren<Text> ().text = costString;
 			BuildingNodes [i].BuildingImage.sprite = storage.FurnitureSprites [i];
 			BuildingNodes [i].BuildingImage.SetNativeSize ();
-			BuildingNodes [i].RewardText.text = "+" + Restaurant.instance.PrestigeRewards [i];
-			BuildingNodes [i].CountText.text = Restaurant.instance.CurrentBuildings [i] + "/" + Restaurant.instance.BuildingLimitsByBuildingsByLevels[i, Restaurant.instance.PrestigeLevel - 1];
-			if (Restaurant.instance.CurrentBuildings[i] >= Restaurant.instance.BuildingLimitsByBuildingsByLevels[i, Restaurant.instance.PrestigeLevel - 1]) {
+			BuildingNodes [i].RewardText.text = "+" + prestige;
+			BuildingNodes [i].CountText.text = Restaurant.instance.CurrentBuildings [i] + "/" + BuildingNodes [i].MyBuilding.InitialCountLimitByPrestigeLevel[Restaurant.instance.PrestigeLevel - 1];
+			if (Restaurant.instance.CurrentBuildings[i] >= BuildingNodes [i].MyBuilding.InitialCountLimitByPrestigeLevel[Restaurant.instance.PrestigeLevel - 1]) {
 				BuildingNodes [i].BuildButton.SetActive (false);
 			} else {
 				BuildingNodes [i].BuildButton.SetActive (true);

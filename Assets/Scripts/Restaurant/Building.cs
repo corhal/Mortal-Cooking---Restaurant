@@ -1,37 +1,51 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Building : MonoBehaviour, ISelectable {
+public class Building : MonoBehaviour {
+	
+	bool isBuilt;
+	public bool IsBuilt { get { return isBuilt; } }
 
-	public int Id;
-	public bool IsBuilt;
-	public int Cost;
-	public int Prestige;
-	public int SpriteIndex;
+	public int InitialCost;
+	int cost;
+	public int Cost { get { return cost; } }
 
-	void Awake () {
-		
+	public int InitialPrestige;
+	int prestige;
+	public int Prestige { get { return prestige; } }
+
+	// public int SpriteIndex;
+
+	int typeId;
+	public int TypeId { get { return typeId; } }
+
+	public int[] InitialCountLimitByPrestigeLevel;
+	int[] countLimitByPrestigeLevel;
+	public int[] CountLimitByPrestigeLevel { get { return countLimitByPrestigeLevel; } }
+
+	SpriteRenderer spriteRenderer;
+	Storage storage;
+
+	void Awake() {
+		storage = Player.instance.gameObject.GetComponent<Storage> ();
+		spriteRenderer = gameObject.GetComponent<SpriteRenderer> ();
 	}
 
-	public void InitializeFromData (BuildingData data) {
-		Id = data.Id;
-		SpriteIndex = data.SpriteIndex;
-		Storage storage = Player.instance.gameObject.GetComponent<Storage> ();
-		gameObject.GetComponent<SpriteRenderer> ().sprite = storage.FurnitureSprites [SpriteIndex];
+	void Start () {
+		cost = InitialCost;
+		prestige = InitialPrestige;
+		gameObject.GetComponent<BoxCollider2D> ().size = spriteRenderer.sprite.bounds.size;
+		typeId = System.Array.IndexOf (storage.FurnitureSprites, spriteRenderer.sprite);
+	}
+
+	public void InitializeFromData (BuildingData data) {		
 		gameObject.GetComponent<BoxCollider2D> ().size = gameObject.GetComponent<SpriteRenderer> ().sprite.bounds.size;
 		transform.position = new Vector3 (data.x, data.y, data.z);
-		IsBuilt = data.IsBuilt;
+
+		isBuilt = data.IsBuilt;
 	}
 
-	public void Select () {
-
-	}
-
-	public void Deselect () {
-
-	}
-
-	public void ToggleSelect () {
-
+	public void Build() {
+		isBuilt = true;
 	}
 }

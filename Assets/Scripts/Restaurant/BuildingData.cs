@@ -6,16 +6,13 @@ public class BuildingData {
 
 	public bool IsBuilt;
 
-	public int Id;
+	public int TypeId;
 	public float x;
 	public float y;
 	public float z;
 
-	public int SpriteIndex;
-
-	public void InitializeFromBuilding(Building building) {
-		Id = building.Id;
-		SpriteIndex = building.SpriteIndex;
+	public void InitializeFromBuilding(Building building) {	
+		TypeId = building.TypeId;
 		x = building.transform.position.x;
 		y = building.transform.position.y;
 		z = building.transform.position.z;

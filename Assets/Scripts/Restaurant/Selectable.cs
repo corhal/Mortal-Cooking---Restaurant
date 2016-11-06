@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Selectable : MonoBehaviour {
 
-	public GameObject Selection;
+	public GameObject SelectionObject;
 
 	bool isSelected;
 	public bool IsSelected { get { return isSelected; } }
@@ -13,14 +13,18 @@ public class Selectable : MonoBehaviour {
 
 	public bool StartingMoveableTemp;
 
+	public delegate void SelectionChangedEventHandler (Selectable selection, bool selected);
+	public static event SelectionChangedEventHandler OnSelectionChanged;
+
 	void Awake() {
 		moveable = StartingMoveableTemp;
 	}
 
 	void ChangeSelection(bool shouldSelect) {
 		isSelected = shouldSelect;
-		if (Selection != null) {
-			Selection.SetActive (shouldSelect);
+		OnSelectionChanged (this, isSelected);
+		if (SelectionObject != null) {
+			SelectionObject.SetActive (shouldSelect);
 		}		 
 	}
 

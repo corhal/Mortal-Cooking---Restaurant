@@ -6,7 +6,6 @@ using System.Collections;
 public class RestaurantData {
 
 	public System.DateTime LastTime;
-	//public int BuildingCost;
 	public int Gold;
 	public int Prestige;
 	public int PrestigeLevel;
@@ -36,9 +35,7 @@ public class RestaurantData {
 		CurrentBuildings = restaurant.CurrentBuildings;
 		Energy = restaurant.Energy;
 		CookSpawnPointsCount = restaurant.CookSpawnPoints.Count;
-		//BuildingCost = restaurant.BuildingCost;
 		LastTime = System.DateTime.Now;
-		NeedsWipe = restaurant.NeedsWipe;
 		Gold = restaurant.Gold;
 		Prestige = restaurant.Prestige;
 		PrestigeLevel = restaurant.PrestigeLevel;

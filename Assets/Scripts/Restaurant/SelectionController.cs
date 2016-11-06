@@ -5,37 +5,60 @@ public class SelectionController : MonoBehaviour {
 
 	Selectable currentSelection;
 
-	public delegate void SelectionChangedEventHandler (Selectable selection);
+	public delegate void SelectionChangedEventHandler (Selectable selection, bool selected);
 	public static event SelectionChangedEventHandler OnSelectionChanged;
 
-	void Update() {		
-		if (Input.GetMouseButtonUp(0)) {
-			Selectable selection = Utility.CastRayToMouse ().GetComponent<Selectable> ();
+	bool canSelect = true;
 
-			if (selection != null) {				
-				if (selection.IsSelected) {
-					//ClearSelection ();
-				} else {
-					Select (selection);
+	void Awake() {
+		Selectable.OnSelectionChanged += Selectable_OnSelectionChanged;
+	}
+
+	void Selectable_OnSelectionChanged (Selectable selection, bool selected) { // Нужно ли передавать ивент через посредника?
+		OnSelectionChanged (selection, selected);
+	}
+
+	void Update() {		
+		if (Input.GetMouseButtonDown(0) && Utility.IsPointerOverUIObject()) {
+			canSelect = false;
+		}
+		if (Input.GetMouseButtonUp(0) && !Utility.IsPointerOverUIObject()) {
+			if (canSelect) {				
+				Selectable selection = null;
+				Debug.Log (Utility.CastRayToMouse ());
+				if (Utility.CastRayToMouse () != null) {
+					selection = Utility.CastRayToMouse ().GetComponent<Selectable> ();
 				}
-			} else {
-				ClearSelection ();
+
+				if (selection != null) {				
+					if (!selection.IsSelected) {						
+						Select (selection);
+					} 
+				} else {
+					ClearSelection ();
+					Debug.Log ("Clearing existing selection");
+				}
 			}
+		}
+		if (Input.GetMouseButtonUp (0)) {
+			canSelect = true;
 		}
 	}
 
 	void ClearSelection() {
-		if (currentSelection != null) {
+		if (currentSelection != null) {			
 			currentSelection.Deselect ();
 			currentSelection = null;
-			OnSelectionChanged (null);
 		}
 	}
 
-	void Select(Selectable selection) {
+	public void Select(Selectable selection) { // Публичность этого метода выглядит сомнительно
 		ClearSelection ();
 		selection.Select ();
 		currentSelection = selection;
-		OnSelectionChanged (selection);
+	}
+
+	void OnDestroy() {
+		Selectable.OnSelectionChanged -= Selectable_OnSelectionChanged;
 	}
 }

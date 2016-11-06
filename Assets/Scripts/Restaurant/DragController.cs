@@ -13,13 +13,12 @@ public class DragController : MonoBehaviour {
 		SelectionController.OnSelectionChanged += SelectionController_OnSelectionChanged;
 	}
 
-	void SelectionController_OnSelectionChanged (Selectable selection) {
-		if (selection == null) {
+	void SelectionController_OnSelectionChanged (Selectable selection, bool selected) {
+		if (!selected) {
 			draggable = null;
 			shouldDrag = false;
 		} else if (selection.Moveable) {
 			draggable = selection.gameObject;
-			offset = draggable.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f));
 			shouldDrag = true;
 		}
 		ShouldDrag = shouldDrag;
@@ -29,6 +28,7 @@ public class DragController : MonoBehaviour {
 		if (draggable != null && Input.GetMouseButtonDown(0)) {
 			if (Utility.CastRayToMouse() != null && Utility.CastRayToMouse().GetComponent<Selectable>() == draggable.GetComponent<Selectable>()) {
 				shouldDrag = true;
+				offset = draggable.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f));
 			} else {
 				shouldDrag = false;
 			}
@@ -43,5 +43,9 @@ public class DragController : MonoBehaviour {
 			ZChecker checker = draggable.GetComponent<ZChecker> ();
 			checker.CheckZ ();
 		}
+	}
+
+	void OnDestroy() {
+		SelectionController.OnSelectionChanged -= SelectionController_OnSelectionChanged;
 	}
 }

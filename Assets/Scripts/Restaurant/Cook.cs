@@ -23,9 +23,6 @@ public class Cook : MonoBehaviour {
 	public int[,] RangeGoldPerClientByLevel;
 	public int[] SoulstoneRequirementsPerLevel;
 
-	public delegate void CookClickedEventHandler (Cook cook);
-	public static event CookClickedEventHandler OnCookClicked;
-
 	public Text LevelLabel;
 	public Text SoulstonesLabel;
 	public Slider SoulstonesSlider;
@@ -46,30 +43,8 @@ public class Cook : MonoBehaviour {
 		UpdateLabels ();
 	}
 
-	void OnMouseUpAsButton() {		
-		Debug.Log ("Clicked cook");
-		OnCookClicked (this);
-		//AddSoulstones (5);
-	}
-
-	public void ToggleSelect() {
-		Selected = !Selected;
-		ButtonContainer.SetActive (!ButtonContainer.activeSelf);
-		if (!RaidReady) {
-			RaidButton.SetActive (false);
-		}
-		UpdateLabels ();
-	}
-
-	public void Deselect() {
-		Selected = false;
-		ButtonContainer.SetActive (false);
-		UpdateLabels ();
-	}
-
 	public int GenerateGold() {
-		int gold = Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);
-		//Debug.Log("Gold min: " + (RangeGoldPerClientByLevel [Level - 1, 0] + ", max: " + RangeGoldPerClientByLevel [Level - 1, 1] + ", rolled: " + gold));
+		int gold = Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);		
 		return gold;
 	}
 
@@ -90,6 +65,7 @@ public class Cook : MonoBehaviour {
 	public void Play() {
 		if (restaurant.SpendEnergy(restaurant.EnergyCostPerMission)) {
 			restaurant.SetMission (gameObject.GetComponentInChildren<MissionData> ());
+			//Player.instance.Save ();
 			restaurant.ChangeScene (1);
 		}
 	}
@@ -114,9 +90,19 @@ public class Cook : MonoBehaviour {
 		RaidReady = data.RaidReady;
 		Dishes = new int[data.Dishes.Length];
 		data.Dishes.CopyTo (Dishes, 0);
+
+		if (Id == Player.instance.currentCookId) {
+			if (Player.instance.StarCount == 3) {
+				RaidReady = true;
+			}
+			AddSoulstones (Player.instance.Soulstones);
+		}
 	}
 
 	public void UpdateLabels() {
+		if (RaidReady) {
+			RaidButton.SetActive (true);
+		}
 		LevelLabel.text = Level.ToString ();
 		SoulstonesLabel.text = Soulstones + "/" + SoulstoneRequirementsPerLevel [Level - 1];
 		SoulstonesSlider.maxValue = SoulstoneRequirementsPerLevel [Level - 1];

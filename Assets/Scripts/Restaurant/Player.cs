@@ -8,7 +8,6 @@ public class Player : MonoBehaviour {
 	public RestaurantData MyRestaurant;
 	public PlayerData MyPlayer;
 
-	//public bool ShouldRaidCook;
 	public bool FirstTime = true;
 	public bool HasWon;
 	public int StarCount;
@@ -21,40 +20,19 @@ public class Player : MonoBehaviour {
 	public int GoldFromMission;
 
 	void Awake() {
-		
-		//SaveLoad.Delete ();
-		//SaveLoad.Load ();
-
-		if (instance == null) {
-			//if not, set instance to this
+		if (instance == null) {			
 			instance = this;
-		}
-
-		//If instance already exists and it's not this:
-		else if (instance != this) {
-
-			//Then destroy this. This enforces our singleton pattern, meaning there can only ever be one instance of a GameManager.
+		} else if (instance != this) {
 			Destroy (gameObject);  
 		}
-
-		//Sets this to not be destroyed when reloading scene
 		DontDestroyOnLoad(gameObject);
 	}
 
 	void Start() {		
 		SaveLoad.Load ();
-		Debug.Log (SaveLoad.savedData);
 		if (SaveLoad.savedData != null) {				
 			MyRestaurant = SaveLoad.savedData;
-			Debug.Log (MyRestaurant.Session.ToString());
-
-			Debug.Log (MyRestaurant.Session.ToString());
-			if (Restaurant.instance.Prestige == 0) {
-				//Restaurant.instance.InitializeFromData (MyRestaurant);
-			}
-		} else {
-			MyRestaurant = new RestaurantData (0, 0, 1);
-		}
+		} 
 	}
 
 	public void SetMission(MissionData missionData) {
@@ -64,8 +42,7 @@ public class Player : MonoBehaviour {
 	}
 
 	public void Save() {
-		MyRestaurant.InitializeFromRestaurant (Restaurant.instance);
-		Debug.Log ("Date-time when player saves: " + MyRestaurant.LastTime);
+		MyRestaurant.InitializeFromRestaurant (Restaurant.instance);	
 		SaveLoad.Save ();
 	}
 
@@ -76,8 +53,4 @@ public class Player : MonoBehaviour {
 			MyRestaurant = SaveLoad.savedData;
 		}
 	}
-
-	/*public void OnLevelWasLoaded() {
-
-	}*/
 }
