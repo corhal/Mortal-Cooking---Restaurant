@@ -25,7 +25,7 @@ public class CameraDrag : MonoBehaviour
 			//cameraDragging = true;
 		//}
 
-		if (Restaurant.instance.GetComponent<Builder>().selectedBuilding != null) {
+		if (Restaurant.instance.GetComponent<Builder>().selectedBuilding != null || DragController.ShouldDrag) {
 			cameraDragging = false;
 		}
 

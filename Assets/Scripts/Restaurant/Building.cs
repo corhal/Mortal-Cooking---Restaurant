@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Building : MonoBehaviour {
+public class Building : MonoBehaviour, ISelectable {
 
 	public int Id;
 	public bool IsBuilt;
@@ -9,11 +9,11 @@ public class Building : MonoBehaviour {
 	public int Prestige;
 	public int SpriteIndex;
 
-	void Awake() {
+	void Awake () {
 		
 	}
 
-	public void InitializeFromData(BuildingData data) {
+	public void InitializeFromData (BuildingData data) {
 		Id = data.Id;
 		SpriteIndex = data.SpriteIndex;
 		Storage storage = Player.instance.gameObject.GetComponent<Storage> ();
@@ -21,5 +21,17 @@ public class Building : MonoBehaviour {
 		gameObject.GetComponent<BoxCollider2D> ().size = gameObject.GetComponent<SpriteRenderer> ().sprite.bounds.size;
 		transform.position = new Vector3 (data.x, data.y, data.z);
 		IsBuilt = data.IsBuilt;
+	}
+
+	public void Select () {
+
+	}
+
+	public void Deselect () {
+
+	}
+
+	public void ToggleSelect () {
+
 	}
 }
