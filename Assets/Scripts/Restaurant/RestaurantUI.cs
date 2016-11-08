@@ -11,6 +11,7 @@ public class RestaurantUI : MonoBehaviour {
 	public Slider GoldSlider;
 	public Slider EnergySlider;
 	public Text GoldText;
+	public Text StarmoneyText;
 	public Text EnergyText;
 	public Text SessionLabel;
 	public Text EnergyTipText;
@@ -19,7 +20,7 @@ public class RestaurantUI : MonoBehaviour {
 		Restaurant.OnRestaurantInfoChanged += Restaurant_OnRestaurantInfoChanged;
 	}
 
-	void Restaurant_OnRestaurantInfoChanged () {
+	void Restaurant_OnRestaurantInfoChanged () {		
 		UpdateInfoLabel ();
 	}
 
@@ -32,10 +33,19 @@ public class RestaurantUI : MonoBehaviour {
 		string goldString = Restaurant.instance.Gold.ToString();
 		string maxGoldString = Restaurant.instance.MaxGoldPerLevel [Restaurant.instance.PrestigeLevel - 1].ToString ();
 		if (Restaurant.instance.Gold > 1000) {
-			goldString = (Restaurant.instance.Gold / 1000) + "k";
+			int hundreds = Restaurant.instance.Gold / 100;
+			string num = hundreds.ToString ();
+			string firstPart = num.Substring (0, num.Length - 1);
+			string secondPart = num.Substring (num.Length - 1, 1);
+			goldString = /*(Restaurant.instance.Gold / 1000)*/ firstPart + "." + secondPart + "k";
 		}
 		if (Restaurant.instance.MaxGoldPerLevel [Restaurant.instance.PrestigeLevel - 1] > 1000) {
-			maxGoldString = (Restaurant.instance.MaxGoldPerLevel [Restaurant.instance.PrestigeLevel - 1] / 1000) + "k";
+			int maxGold = Restaurant.instance.MaxGoldPerLevel [Restaurant.instance.PrestigeLevel - 1];
+			int hundreds = maxGold / 100;
+			string num = hundreds.ToString ();
+			string firstPart = num.Substring (0, num.Length - 1);
+			string secondPart = num.Substring (num.Length - 1, 1);
+			maxGoldString = /*(Restaurant.instance.MaxGoldPerLevel [Restaurant.instance.PrestigeLevel - 1] / 1000)*/ firstPart + "." + secondPart + "k";
 		}
 
 		GoldText.text = goldString + "/" + maxGoldString;
@@ -48,8 +58,8 @@ public class RestaurantUI : MonoBehaviour {
 
 		SessionLabel.text = "Session: " + Restaurant.instance.Session;
 
-		int clientsMin = Restaurant.instance.RangeClientsPerSecondByLevel [Restaurant.instance.PrestigeLevel - 1, 0];
-		int clientsMax = Restaurant.instance.RangeClientsPerSecondByLevel [Restaurant.instance.PrestigeLevel - 1, 1];
+		int clientsMin = Restaurant.instance.RangeClientsPerTickByLevel [Restaurant.instance.PrestigeLevel - 1, 0];
+		int clientsMax = Restaurant.instance.RangeClientsPerTickByLevel [Restaurant.instance.PrestigeLevel - 1, 1];
 		int goldMin = 0;
 		int goldMax = 0;
 		foreach (var cook in Restaurant.instance.Cooks) {
@@ -59,8 +69,10 @@ public class RestaurantUI : MonoBehaviour {
 		int incomeMin = goldMin * clientsMin;
 		int incomeMax = goldMax * clientsMax;
 
-		ClientsLabel.text = "Clients per 5 sec:\n" + Restaurant.instance.RangeClientsPerSecondByLevel [Restaurant.instance.PrestigeLevel - 1, 0] + " - " + Restaurant.instance.RangeClientsPerSecondByLevel [Restaurant.instance.PrestigeLevel - 1, 1] + "\n" +
+		ClientsLabel.text = "Clients per 5 sec:\n" + Restaurant.instance.RangeClientsPerTickByLevel [Restaurant.instance.PrestigeLevel - 1, 0] + " - " + Restaurant.instance.RangeClientsPerTickByLevel [Restaurant.instance.PrestigeLevel - 1, 1] + "\n" +
 			"Average income:\n" + incomeMin + " - " + incomeMax;
+
+		StarmoneyText.text = Restaurant.instance.Starmoney.ToString ();
 	}
 
 	void OnDestroy() {

@@ -36,8 +36,8 @@ public class Player : MonoBehaviour {
 	}
 
 	public void SetMission(MissionData missionData) {
-		currentCookId = missionData.GetComponentInParent<Cook> ().Id;
-		Debug.Log (missionData.GetComponentInParent<Cook> ().Id);
+		//currentCookId = missionData.GetComponentInParent<Cook> ().Id;
+		//Debug.Log (missionData.GetComponentInParent<Cook> ().Id);
 		MyMission.InitializeFromMissionData (missionData);
 	}
 

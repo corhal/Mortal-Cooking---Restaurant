@@ -493,7 +493,7 @@ public class GameController : MonoBehaviour {
 		if (coinToss < 0.5f) {
 			rand = 0;
 		}
-		Player.instance.GoldFromMission = Restaurant.instance.GoldReward;
+		Player.instance.GoldFromMission = Player.instance.MyMission.GoldReward;
 		Player.instance.Soulstones = rand;
 	}
 

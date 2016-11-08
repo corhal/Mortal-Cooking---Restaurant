@@ -14,8 +14,6 @@ public class Building : MonoBehaviour {
 	int prestige;
 	public int Prestige { get { return prestige; } }
 
-	// public int SpriteIndex;
-
 	int typeId;
 	public int TypeId { get { return typeId; } }
 
@@ -36,6 +34,7 @@ public class Building : MonoBehaviour {
 		prestige = InitialPrestige;
 		gameObject.GetComponent<BoxCollider2D> ().size = spriteRenderer.sprite.bounds.size;
 		typeId = System.Array.IndexOf (storage.FurnitureSprites, spriteRenderer.sprite);
+		countLimitByPrestigeLevel = InitialCountLimitByPrestigeLevel;
 	}
 
 	public void InitializeFromData (BuildingData data) {		

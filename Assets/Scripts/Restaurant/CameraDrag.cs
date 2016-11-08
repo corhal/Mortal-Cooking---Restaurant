@@ -13,19 +13,9 @@ public class CameraDrag : MonoBehaviour
 
 
 	void Update() {		
-		//Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+		cameraDragging = true;
 
-		//float left = Screen.width * 0.2f;
-		//float right = Screen.width - (Screen.width * 0.2f);
-
-		//if(mousePosition.x < left) {
-			cameraDragging = true;
-		//}
-		//else if(mousePosition.x > right) {
-			//cameraDragging = true;
-		//}
-
-		if (DragController.ShouldDrag) {
+		if (DragController.ShouldDrag || FloorController.isInFloorMode) {
 			cameraDragging = false;
 		}
 

@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{436165FE-E35A-F83C-424F-47BEFEAFC992}</ProjectGuid>
+    <ProjectGuid>{A0210EFA-5B85-9815-DED8-9D4D80996002}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -38,10 +38,10 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="UnityEngine">
-      <HintPath>D:/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+      <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
-      <HintPath>D:/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+      <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -54,17 +54,26 @@
      <Compile Include="Assets\Scripts\Gameplay\ItemHelper.cs" />
      <Compile Include="Assets\Scripts\Gameplay\LerpScore.cs" />
      <Compile Include="Assets\Scripts\Gameplay\MenuController.cs" />
-     <Compile Include="Assets\Scripts\Gameplay\MissionData.cs" />
      <Compile Include="Assets\Scripts\Gameplay\Storage.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Builder.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Building.cs" />
      <Compile Include="Assets\Scripts\Restaurant\BuildingData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\BuildingNode.cs" />
      <Compile Include="Assets\Scripts\Restaurant\CameraDrag.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\Chest.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\ChestWindow.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\Client.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\ClientData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Cook.cs" />
      <Compile Include="Assets\Scripts\Restaurant\CookData.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\CookInfoWindow.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\CookUI.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Customer.cs" />
      <Compile Include="Assets\Scripts\Restaurant\DragController.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\FloorController.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\FlyingText.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\MissionData.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\MissionEndWindow.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Player.cs" />
      <Compile Include="Assets\Scripts\Restaurant\PlayerData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Restaurant.cs" />
@@ -74,14 +83,15 @@
      <Compile Include="Assets\Scripts\Restaurant\Selectable.cs" />
      <Compile Include="Assets\Scripts\Restaurant\SelectionController.cs" />
      <Compile Include="Assets\Scripts\Restaurant\ShopWindow.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\Tile.cs" />
      <Compile Include="Assets\Scripts\Restaurant\TooltipShower.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Utility.cs" />
      <Compile Include="Assets\Scripts\Restaurant\ZChecker.cs" />
  <Reference Include="UnityEngine.UI">
- <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+ <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
- <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

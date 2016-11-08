@@ -8,9 +8,11 @@ public class DragController : MonoBehaviour {
 	Vector3 offset;
 	bool shouldDrag;
 	public static bool ShouldDrag; // hack
+	public int layerMask;
 
 	void Awake() {
 		SelectionController.OnSelectionChanged += SelectionController_OnSelectionChanged;
+		layerMask = LayerMask.GetMask ("Buildings");
 	}
 
 	void SelectionController_OnSelectionChanged (Selectable selection, bool selected) {
@@ -26,7 +28,7 @@ public class DragController : MonoBehaviour {
 		
 	void Update() {		
 		if (draggable != null && Input.GetMouseButtonDown(0)) {
-			if (Utility.CastRayToMouse() != null && Utility.CastRayToMouse().GetComponent<Selectable>() == draggable.GetComponent<Selectable>()) {
+			if (Utility.CastRayToMouse(layerMask) != null && Utility.CastRayToMouse(layerMask).GetComponent<Selectable>() == draggable.GetComponent<Selectable>()) {
 				shouldDrag = true;
 				offset = draggable.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f));
 			} else {
@@ -34,6 +36,7 @@ public class DragController : MonoBehaviour {
 			}
 		}
 		if (shouldDrag && Input.GetMouseButton(0)) {
+			Debug.Log ("should be dragging right now");
 			Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f);
 			draggable.transform.position = Camera.main.ScreenToWorldPoint(newPosition) + offset;
 			float factor = 0.375f;

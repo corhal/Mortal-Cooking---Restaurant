@@ -12,14 +12,13 @@ public static class Utility {
 		return multiple * factor;
 	}
 
-	public static GameObject CastRayToMouse() {
+	public static GameObject CastRayToMouse(int layerMask) {		
 		Vector3 mousePoint;
 		Vector2 mousePoint2D;
 
 		mousePoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 		mousePoint2D = new Vector2 (mousePoint.x, mousePoint.y);
-
-		RaycastHit2D hit = Physics2D.Raycast (mousePoint2D, mousePoint2D);
+		RaycastHit2D hit = Physics2D.Raycast (mousePoint2D, Vector2.zero, 100.0f, layerMask);
 
 		GameObject hitObject = null;
 
@@ -41,5 +40,12 @@ public static class Utility {
 			}
 		}
 		return results.Count > 0;
+	}
+
+	// sum=(a+b)(b-a+1)/2
+
+	public static float MathExpectation(float intervalStart, float intervalEnd) {
+		float sum = (intervalStart + intervalEnd) * (intervalEnd - intervalStart + 1) / 2;
+		return sum / (intervalEnd - intervalStart);
 	}
 }

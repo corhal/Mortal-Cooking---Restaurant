@@ -26,4 +26,8 @@ public class Storage : MonoBehaviour {
 	/* Дальше картинки для ресторана */
 
 	public Sprite[] FurnitureSprites;
+
+	public Sprite[] TileSprites;
+
+	public Sprite[] FancyTileSprites;
 }

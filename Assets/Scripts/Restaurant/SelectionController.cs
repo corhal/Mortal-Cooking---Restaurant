@@ -10,8 +10,12 @@ public class SelectionController : MonoBehaviour {
 
 	bool canSelect = true;
 
+	public int layerMask;
+
 	void Awake() {
 		Selectable.OnSelectionChanged += Selectable_OnSelectionChanged;
+		//layerMask = LayerMask.NameToLayer ("Buildings");
+		layerMask = LayerMask.GetMask ("Buildings");
 	}
 
 	void Selectable_OnSelectionChanged (Selectable selection, bool selected) { // Нужно ли передавать ивент через посредника?
@@ -19,29 +23,29 @@ public class SelectionController : MonoBehaviour {
 	}
 
 	void Update() {		
-		if (Input.GetMouseButtonDown(0) && Utility.IsPointerOverUIObject()) {
-			canSelect = false;
-		}
-		if (Input.GetMouseButtonUp(0) && !Utility.IsPointerOverUIObject()) {
-			if (canSelect) {				
-				Selectable selection = null;
-				Debug.Log (Utility.CastRayToMouse ());
-				if (Utility.CastRayToMouse () != null) {
-					selection = Utility.CastRayToMouse ().GetComponent<Selectable> ();
-				}
+		if (!FloorController.isInFloorMode) { // Dirty hax time
+			if (Input.GetMouseButtonDown(0) && Utility.IsPointerOverUIObject()) {
+				canSelect = false;
+			}
+			if (Input.GetMouseButtonUp(0) && !Utility.IsPointerOverUIObject()) {
+				if (canSelect) {				
+					Selectable selection = null;
+					if (Utility.CastRayToMouse (layerMask) != null) {
+						selection = Utility.CastRayToMouse (layerMask).GetComponent<Selectable> ();
+					}
 
-				if (selection != null) {				
-					if (!selection.IsSelected) {						
-						Select (selection);
-					} 
-				} else {
-					ClearSelection ();
-					Debug.Log ("Clearing existing selection");
+					if (selection != null) {				
+						if (!selection.IsSelected) {						
+							Select (selection);
+						} 
+					} else {
+						ClearSelection ();
+					}
 				}
 			}
-		}
-		if (Input.GetMouseButtonUp (0)) {
-			canSelect = true;
+			if (Input.GetMouseButtonUp (0)) {
+				canSelect = true;
+			}
 		}
 	}
 

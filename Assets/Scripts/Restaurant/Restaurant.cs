@@ -20,15 +20,22 @@ public class Restaurant : MonoBehaviour {
 
 	float timer;
 	float energyTimer; // Я ужасный человек
+	float clientTimer;
 	Builder builder;
 
 	public int[] CurrentBuildings;
 	public int[] BuildingLayers;
 
+	public GameObject FloorContainer;
+	public Tile[] Tiles;
+
 	public int Session;
 
 	int gold;
 	public int Gold { get { return gold; } }
+
+	int starmoney;
+	public int Starmoney { get { return starmoney; } }
 
 	int energy;
 	public int Energy { get { return energy; } }
@@ -39,17 +46,30 @@ public class Restaurant : MonoBehaviour {
 	public int[] AdditionalCookLevels;
 	public int[] PrestigeRequirementsPerLevel;
 	public int[] MaxGoldPerLevel;
-	public int[,] RangeClientsPerSecondByLevel;
+	public int[,] RangeClientsPerTickByLevel;
+	public int ClientsTickPeriod;
+
+	public int[] Dishes;
+	public int[] Items;
+	public string[] ItemNames;
+	public int[] ItemCounts;
 
 	public List<Cook> Cooks;
 	public List<Building> Buildings;
 
-	public GameObject CookPrefab;
+	public GameObject[] CookPrefabs;
+	public GameObject ClientPrefab;
+	public List<Client> CurrentClients;
 
 	public static Restaurant instance;
 
+	public Chest chest;
+
 	public delegate void RestaurantInfoChangedEventHandler ();
 	public static event RestaurantInfoChangedEventHandler OnRestaurantInfoChanged;
+
+	public delegate void MissionEndedEventHandler (int gold, IEnumerable<int> items);
+	public static event MissionEndedEventHandler OnMissionEnded;
 
 	void Awake() {
 		if (instance == null) {			
@@ -58,7 +78,7 @@ public class Restaurant : MonoBehaviour {
 			Destroy (gameObject);  
 		}
 
-		RangeClientsPerSecondByLevel = new int[,] {
+		RangeClientsPerTickByLevel = new int[,] {
 			{1, 3},
 			{2, 4},
 			{3, 5},
@@ -72,21 +92,49 @@ public class Restaurant : MonoBehaviour {
 		};
 	
 		builder = gameObject.GetComponent<Builder> ();
+		chest = gameObject.GetComponent<Chest> ();
 		builder.OnBuildingBuilt += Builder_OnBuildingBuilt;
 		CurrentBuildings = new int[10]; // TODO: заменить
-
+		Cook.OnCollectGold += Cook_OnCollectGold;
+		Client.OnClientDied += Client_OnClientDied;
 	}
 
-	public void InitializeFromData(RestaurantData data) {		
+	void Client_OnClientDied (Client client) {
+		CurrentClients.Remove (client);
+		Destroy (client.gameObject);
+	}
+
+	void Cook_OnCollectGold (Cook cook) {
+		int leftover = 0;
+		if (MaxGoldPerLevel[PrestigeLevel - 1] < (Gold + cook.Gold)) {
+			leftover = Gold + cook.Gold - MaxGoldPerLevel [PrestigeLevel - 1];
+		}
+		Debug.Log ("Leftover: " + leftover);
+		cook.ShowFlyingText (cook.Gold - leftover);
+		AddGold (cook.Gold);
+		Debug.Log ("Cook had: " + cook.Gold);
+		cook.Gold = leftover;
+	}
+
+	public void InitializeFromData(RestaurantData data) {	
+		//ItemCounts = new int[data.ItemCounts.Length];
+		Tiles = FloorContainer.GetComponentsInChildren<Tile>();
+		if (data.TileTypes.Length > 0) {
+			for (int i = 0; i < data.TileTypes.Length; i++) {
+				Tiles [i].ChangeTile (data.TileTypes [i]);
+			}
+		}
+		data.ItemCounts.CopyTo (ItemCounts, 0);	
 		Session = data.Session;
 		Prestige = data.Prestige;
 		PrestigeLevel = data.PrestigeLevel;
 		LastTime = data.LastTime;
 		energy = data.Energy;
 		gold = data.Gold;
+		starmoney = data.Starmoney;
 
 		for (int i = 0; i < data.CookDatas.Count; i++) {
-			GameObject cookObject = Instantiate (CookPrefab) as GameObject;
+			GameObject cookObject = Instantiate (CookPrefabs[data.CookDatas[i].TypeId]) as GameObject;
 			Cook newCook = cookObject.GetComponent<Cook> ();
 			newCook.InitializeFromData (data.CookDatas [i]);
 			Cooks.Add (newCook);
@@ -99,42 +147,79 @@ public class Restaurant : MonoBehaviour {
 			CurrentBuildings [buildingObject.GetComponent<Building> ().TypeId]++; // не очень изящно, надо подумать, как поменять
 		}
 
+		if (data.ClientDatas.Count > 0) {
+			clientTimer = 1.0f;
+			for (int i = 0; i < data.ClientDatas.Count; i++) {
+				GameObject clientObject = Instantiate (ClientPrefab) as GameObject; 
+				clientObject.GetComponent<Client> ().InitializeFromData (data.ClientDatas [i]);
+				CurrentClients.Add(clientObject.GetComponent<Client> ());
+			}
+		} else {
+			WelcomeClients ();
+		}
+
+
 		System.TimeSpan ts = System.DateTime.Now.Subtract (LastTime);
 
 		if ((int)ts.TotalSeconds > 0) {		
-			AddGold (SkipTime ((int)ts.TotalSeconds) [0]);		
-			energy = Mathf.Min (energy + SkipTime ((int)ts.TotalSeconds) [1], MaxEnergy);
+			SkipTime ((int)ts.TotalSeconds);
 		}
 
 		while (CookSpawnPoints.Count > data.CookSpawnPointsCount) {
 			CookSpawnPoints.RemoveAt(0);
 		}
 
-		AddGold (Player.instance.GoldFromMission);
+		if (Player.instance.HasWon) {
+			Player.instance.HasWon = false;
+			AddGold (Player.instance.GoldFromMission);
+			List<int> itemsWon = new List<int> ();
+			for (int i = 0; i < Player.instance.MyMission.ItemRewards.Length; i++) {
+				if (Random.Range(0.0f, 1.0f) < Player.instance.MyMission.ItemChances[i]) {
+					ItemCounts [Player.instance.MyMission.ItemRewards [i]]++;
+					itemsWon.Add (Player.instance.MyMission.ItemRewards [i]);
+				}
+			}
+			Debug.Log (itemsWon);
+			OnMissionEnded (Player.instance.GoldFromMission, itemsWon);
+		}
+		OnRestaurantInfoChanged ();
 	}
 
-	int[] SkipTime(int seconds) {
-		int ticks = seconds / TickPeriod;
-		int clientsCount = ((RangeClientsPerSecondByLevel [PrestigeLevel - 1, 0] + RangeClientsPerSecondByLevel [PrestigeLevel - 1, 1]) / 2) * ticks;
-		int income = 0;
-		foreach (var cook in Cooks) {
-			income += cook.GenerateGoldPerClients (clientsCount);
+	void SkipTime(int seconds) {
+		int ticks = seconds / ClientsTickPeriod;
+
+		List<int> removeIndexes = new List<int> ();
+		foreach (var client in CurrentClients) {
+			if (seconds > (int)client.LifeTimeLeft) {
+				removeIndexes.Add(CurrentClients.IndexOf(client));
+			}
+		}
+		foreach (var index in removeIndexes) {
+			if (CurrentClients.Count > index) {
+				CurrentClients [index].Die ();
+			}
+		}
+
+		if (CurrentClients.Count == 0) {
+			WelcomeClients ();
+		}
+
+		int clientsCount = ((RangeClientsPerTickByLevel [PrestigeLevel - 1, 0] + RangeClientsPerTickByLevel [PrestigeLevel - 1, 1]) / 2) * ticks;
+		Debug.Log (clientsCount + " clients came why you were absent");
+		foreach (var cook in Cooks) {			
+			cook.GenerateGoldPerClients (clientsCount, Dishes);
 		}
 
 		int energyTicks = seconds / EnergyTickPeriod;
 		int dEnergy = energyTicks * EnergyPerTick;
 
-		int[] result = new int[2];
-		result [0] = income;
-		result [1] = dEnergy;
-		return result;
+		energy = Mathf.Min (energy + dEnergy, MaxEnergy);
 	}
 
 	public void Wait(int hours) {
 		int seconds = hours * 60 * 60;
 		Session++;
-		AddGold (gold + SkipTime (seconds) [0]);
-		energy = Mathf.Min (energy + SkipTime (seconds) [1], MaxEnergy);
+		SkipTime (seconds);
 		OnRestaurantInfoChanged ();
 	}
 
@@ -144,14 +229,23 @@ public class Restaurant : MonoBehaviour {
 	}
 
 	void Builder_OnBuildingBuilt (Building building) {	
-		if (gold >= building.Cost) {
-			gold -= building.Cost;	
+		if (SpendGold (building.Cost)) {
 			building.Build();
 			CurrentBuildings [building.TypeId]++;
 			Buildings.Add (building);
 			AddPrestige (building.Prestige);
 		} else {
 			Destroy (building.gameObject);
+		}
+	}
+
+	public bool SpendGold(int amount) {
+		if (gold >= amount) {
+			gold -= amount;
+			OnRestaurantInfoChanged ();
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -165,32 +259,82 @@ public class Restaurant : MonoBehaviour {
 		}
 	}
 		
+	int currentClient = 0;
 	void Update() {		
-		timer += Time.deltaTime;
-		energyTimer += Time.deltaTime;
-		if (timer >= TickPeriod && gold < MaxGoldPerLevel[PrestigeLevel - 1]) {
-			timer = 0.0f;
+		if (clientTimer == 0.0f) {			
+			WelcomeClients ();
+		}
+		if (timer == 0.0f && gold < MaxGoldPerLevel[PrestigeLevel - 1] && CurrentClients.Count > 0) {
+			currentClient++;
+			if (currentClient >= CurrentClients.Count) {
+				currentClient = 0;
+			}
 			GenerateGold ();
 		}
-		if (energyTimer >= EnergyTickPeriod && energy < MaxEnergy) {
-			energyTimer = 0.0f;
+		if (energyTimer == 0.0f && energy < MaxEnergy) {				
 			energy += EnergyPerTick;
 		}
-		float timeToEnergy = EnergyTickPeriod - energyTimer;
-		int minutes = (int)timeToEnergy / 60;
-		int seconds = (int)timeToEnergy - minutes * 60;
-		string time = minutes + ":" + seconds;
+		timer += Time.deltaTime;
+		energyTimer += Time.deltaTime;
+		clientTimer += Time.deltaTime;
+		if (clientTimer >= ClientsTickPeriod) {
+			clientTimer = 0.0f;
+		}
+		if (timer >= TickPeriod && gold < MaxGoldPerLevel[PrestigeLevel - 1]) {		
+			timer = 0.0f;	
+		}
+		if (energyTimer >= EnergyTickPeriod && energy < MaxEnergy) {	
+			energyTimer = 0.0f;
+		}
+	}
+
+	Vector3 RandomRestaurantPoint() {
+		float x = Random.Range (-7, 2);
+		x = Utility.SnapNumberToFactor (x, 0.75f);
+		float y = Random.Range (-4, 2);
+		y = Utility.SnapNumberToFactor (y, 0.75f);
+		float z = 0;
+		return new Vector3 (x, y, z);
+	}
+
+	void WelcomeClients() {
+		for (int i = 0; i < CurrentClients.Count; i++) {
+			Destroy (CurrentClients [i].gameObject);
+		}
+		CurrentClients.Clear ();
+		int clientsCount = Random.Range (RangeClientsPerTickByLevel [PrestigeLevel - 1, 0], RangeClientsPerTickByLevel [PrestigeLevel - 1, 1] + 1);
+		for (int i = 0; i <= clientsCount; i++) {
+			GameObject newClientObject = Instantiate (ClientPrefab, RandomRestaurantPoint(), ClientPrefab.transform.rotation) as GameObject;
+			Client newClient = newClientObject.GetComponent<Client> ();
+			int index = Random.Range (0, Dishes.Length);
+			newClient.Dish = Dishes [index];
+			newClient.ItemRewards = new int[3];
+			newClient.ItemChances = new float[newClient.ItemRewards.Length];
+			for (int j = 0; j < newClient.ItemRewards.Length; j++) {
+				index = Random.Range (0, Items.Length);
+				newClient.ItemRewards [j] = Items [index];
+				newClient.ItemChances [j] = Random.Range (0.3f, 0.8f);
+			}
+
+			CurrentClients.Add (newClient);
+		}
 	}
 
 	void GenerateGold() {
-		int clientsCount = Random.Range (RangeClientsPerSecondByLevel [PrestigeLevel - 1, 0], RangeClientsPerSecondByLevel [PrestigeLevel - 1, 1] + 1);
-		int income = 0;
-		foreach (var cook in Cooks) {
-			for (int i = 0; i < clientsCount; i++) {
-				income += cook.GenerateGold ();
+		//int clientsCount = Random.Range (RangeClientsPerTickByLevel [PrestigeLevel - 1, 0], RangeClientsPerTickByLevel [PrestigeLevel - 1, 1] + 1);
+		//int income = 0;
+		foreach (var cook in Cooks) {		
+			if (currentClient >= CurrentClients.Count) {
+				currentClient++;
+				if (currentClient >= CurrentClients.Count) {
+					currentClient = 0;
+				}
+			}
+			if (CurrentClients.Count > 0) {
+				cook.GenerateGold (CurrentClients[currentClient]);
 			}
 		}
-		AddGold(income);
+		//AddGold(income);
 	}
 
 	public void Build(int buildingIndex) {
@@ -200,8 +344,41 @@ public class Restaurant : MonoBehaviour {
 	public void AddCook() {		
 		Vector3 spawnPoint = CookSpawnPoints [0].position;
 		CookSpawnPoints.RemoveAt (0);
-		GameObject newCookObject = Instantiate (CookPrefab, spawnPoint, CookPrefab.transform.rotation) as GameObject;
+
+		List<int> typeIds = new List<int> ();
+		foreach (var cookPrefab in CookPrefabs) {
+			typeIds.Add(cookPrefab.GetComponent<Cook>().TypeId);
+		}
+
+		/*foreach (var cook in Cooks) {
+			typeIds.Remove (cook.TypeId);
+		}*/
+
+		int index = Random.Range (0, typeIds.Count);
+
+		GameObject newCookObject = Instantiate (CookPrefabs [typeIds[index]], spawnPoint, CookPrefabs [typeIds[index]].transform.rotation) as GameObject;
 		Cook newCook = newCookObject.GetComponent<Cook> ();
+
+		List<int> tempItems = new List<int> ();
+		foreach (var item in Items) {
+			tempItems.Add (item);
+		}
+		for (int i = 0; i < 25; i++) {
+			int randIndex = Random.Range (0, tempItems.Count);
+			newCook.ItemCollections [i] = tempItems [randIndex];
+			tempItems.RemoveAt (randIndex);
+		}
+
+		List<int> tempDishes = new List<int> ();
+		foreach (var dish in Dishes) {
+			tempDishes.Add (dish);
+		}
+		for (int i = 0; i < newCook.Dishes.Length; i++) {
+			int randIndex = Random.Range (0, tempDishes.Count);
+			newCook.Dishes [i] = tempDishes [randIndex];
+			tempDishes.RemoveAt (randIndex);
+		}
+
 		Cooks.Add (newCook);
 		newCook.Id = Cooks.Count;
 	}
@@ -263,11 +440,28 @@ public class Restaurant : MonoBehaviour {
 		OnRestaurantInfoChanged ();
 	}
 
+	public void AddItem(int item) {
+		ItemCounts [item]++;
+		foreach (var cook in Cooks) {
+			cook.CheckItems (ItemCounts);
+		}
+	}
+
+	public void OpenChest() {
+		if (starmoney >= chest.OpenCost) {
+			starmoney -= chest.OpenCost;
+			AddItem (chest.Open ());
+		}
+		OnRestaurantInfoChanged ();
+	}
+
 	public void Toggle(GameObject window) {
 		window.SetActive (!window.activeSelf);
 	}
 
 	void OnDestroy() {
 		builder.OnBuildingBuilt -= Builder_OnBuildingBuilt;
+		Cook.OnCollectGold -= Cook_OnCollectGold;
+		Client.OnClientDied -= Client_OnClientDied;
 	}
 }

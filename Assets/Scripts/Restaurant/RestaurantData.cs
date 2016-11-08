@@ -7,6 +7,7 @@ public class RestaurantData {
 
 	public System.DateTime LastTime;
 	public int Gold;
+	public int Starmoney;
 	public int Prestige;
 	public int PrestigeLevel;
 	public int[] CurrentBuildings;
@@ -14,10 +15,13 @@ public class RestaurantData {
 
 	public int Energy;
 
+	public int[] ItemCounts;
+	public int[] TileTypes;
 	public int CookSpawnPointsCount = 5;
 
 	public List<CookData> CookDatas;
 	public List<BuildingData> BuildingDatas;
+	public List<ClientData> ClientDatas;
 
 	public bool NeedsWipe;
 
@@ -30,7 +34,14 @@ public class RestaurantData {
 		BuildingDatas = new List<BuildingData> ();
 	}
 
-	public void InitializeFromRestaurant(Restaurant restaurant) {	
+	public void InitializeFromRestaurant(Restaurant restaurant) {
+		TileTypes = new int[restaurant.Tiles.Length];
+		for (int i = 0; i < restaurant.Tiles.Length; i++) {
+			TileTypes [i] = restaurant.Tiles [i].TileType;
+		}
+		Starmoney = restaurant.Starmoney;	
+		ItemCounts = new int[restaurant.ItemCounts.Length];
+		restaurant.ItemCounts.CopyTo (ItemCounts, 0);
 		Session = restaurant.Session;	
 		CurrentBuildings = restaurant.CurrentBuildings;
 		Energy = restaurant.Energy;
@@ -42,6 +53,7 @@ public class RestaurantData {
 
 		CookDatas.Clear ();
 		BuildingDatas.Clear ();
+		ClientDatas.Clear ();
 
 		for (int i = 0; i < restaurant.Cooks.Count; i++) {
 			CookDatas.Add (new CookData ());
@@ -52,5 +64,12 @@ public class RestaurantData {
 			BuildingDatas.Add (new BuildingData ());
 			BuildingDatas [i].InitializeFromBuilding (restaurant.Buildings [i]);
 		}
+
+		for (int i = 0; i < restaurant.CurrentClients.Count; i++) {
+			ClientDatas.Add (new ClientData ());
+			ClientDatas [i].InitializeFromClient (restaurant.CurrentClients [i]);
+		}
+
+		Debug.Log ("Client datas when restaurant saves: " + ClientDatas.Count);
 	}
 }

@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
+//using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -11,8 +11,9 @@ public class Cook : MonoBehaviour {
 	public CookData cookData;
 
 	Restaurant restaurant;
-	public GameObject ButtonContainer;
-	public GameObject RaidButton;
+	public GameObject FlyingTextPrefab;
+
+	public GameObject GoldBubble;
 	public bool RaidReady;
 
 	public bool Selected;
@@ -23,9 +24,21 @@ public class Cook : MonoBehaviour {
 	public int[,] RangeGoldPerClientByLevel;
 	public int[] SoulstoneRequirementsPerLevel;
 
-	public Text LevelLabel;
-	public Text SoulstonesLabel;
-	public Slider SoulstonesSlider;
+	public int TypeId;
+
+	public int Gold;
+	public int[] MaxGoldByLevel;
+
+	public int ItemCollectionLength; // Я об этом очень пожалею. Это длина отрезков, на которые нужно резать следующий массив.
+	public int[] ItemCollections; // Могут подряд идти несколько одинаковых итемов
+
+	public delegate void CollectGoldEventHandler (Cook cook);
+	public static event CollectGoldEventHandler OnCollectGold;
+
+	public delegate void ShowInfoEventHandler (Cook cook);
+	public static event ShowInfoEventHandler OnInfoShow;
+
+	CookUI myUI;
 
 	void Awake() {
 		restaurant = GameObject.FindObjectOfType<Restaurant> ();
@@ -36,11 +49,42 @@ public class Cook : MonoBehaviour {
 			{4, 6},
 			{5, 7}
 		};
-		LevelLabel = GetComponentInChildren<Text> ();
+		myUI = gameObject.GetComponent<CookUI>();
 	}
 
 	void Start() {
-		UpdateLabels ();
+		myUI.UpdateLabels ();
+	}
+
+	public void CheckItems(int[] itemCounts) { // здесь хранятся КОЛИЧЕСТВА предметов по ИНДЕКСУ		
+		int[] itemCollection = CurrentCollection ();
+
+		int count = 0;
+		foreach (var item in itemCollection) { // Пока предметы не могут повторяться(
+			if (itemCounts[item] > 0) {
+				count++;
+			}
+		}
+		if (count >= ItemCollectionLength) {
+			Level++;
+			myUI.UpdateLabels ();
+		}
+	}
+
+	public int[] CurrentCollection () {
+		int curLevel = Level - 1;
+		int startIndex = curLevel * ItemCollectionLength;
+		int[] itemCollection = new int[ItemCollectionLength]; // здесь хранятся ИНДЕКСЫ предметов
+		for (int i = 0; i < itemCollection.Length; i++) {
+			itemCollection [i] = ItemCollections [startIndex];
+			startIndex++;
+		}
+		return itemCollection;
+	}
+
+	public void CollectGold() {
+		GoldBubble.SetActive (false);
+		OnCollectGold (this);
 	}
 
 	public int GenerateGold() {
@@ -48,41 +92,77 @@ public class Cook : MonoBehaviour {
 		return gold;
 	}
 
-	public int GenerateGoldPerClients(int clients) {		
-		return ((RangeGoldPerClientByLevel [Level - 1, 0] + RangeGoldPerClientByLevel [Level - 1, 1]) / 2) * clients;
-	}
-
-	public void AddSoulstones(int amount) {
-		if (Soulstones < SoulstoneRequirementsPerLevel[SoulstoneRequirementsPerLevel.Length - 1]) {
-			Soulstones += amount;
-			if (Level < SoulstoneRequirementsPerLevel.Length && Soulstones >= SoulstoneRequirementsPerLevel[Level - 1]) {
-				Level++;
+	public int GenerateGold(int dish) {
+		int gold = Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);
+		foreach (var myDish in Dishes) {
+			if (myDish == dish) {
+				gold *= 2;
 			}
-			UpdateLabels ();
 		}
+		GameObject flyingTextObject = Instantiate (FlyingTextPrefab, transform.position, transform.rotation) as GameObject;
+		FlyingText flyingText = flyingTextObject.GetComponent<FlyingText> ();
+		flyingText.myText.text = "+" + gold;
+		return gold;
 	}
 
-	public void Play() {
-		if (restaurant.SpendEnergy(restaurant.EnergyCostPerMission)) {
-			restaurant.SetMission (gameObject.GetComponentInChildren<MissionData> ());
-			//Player.instance.Save ();
-			restaurant.ChangeScene (1);
-		}
-	}
-
-	public void Raid() {
-		if (restaurant.SpendEnergy(restaurant.EnergyCostPerMission)) {
-			float coinToss = Random.Range (0.0f, 1.0f);
-			int rand = Random.Range (1, 4);
-			if (coinToss < 0.5f) {
-				rand = 0;
+	public void GenerateGold(Client client) {
+		bool crit = false;
+		int gold = Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);
+		foreach (var myDish in Dishes) {
+			if (myDish == client.Dish) {
+				gold *= 2;
+				crit = true;
 			}
-			AddSoulstones (rand);
-			restaurant.AddGold (restaurant.GoldReward);
 		}
+		gold = client.GiveGold (gold);
+		if (Gold < MaxGoldByLevel[Level - 1]) {
+			GameObject flyingTextObject = Instantiate (FlyingTextPrefab, transform.position, transform.rotation) as GameObject;
+			FlyingText flyingText = flyingTextObject.GetComponent<FlyingText> ();
+			flyingText.myText.text = "+" + gold;
+			if (crit) {
+				flyingText.myText.color = Color.yellow;
+			}
+		}
+
+		Gold = Mathf.Min (Gold + gold, MaxGoldByLevel[Level - 1]);
+		if (Gold > MaxGoldByLevel[Level - 1] / 3) {
+			GoldBubble.SetActive (true);
+		}
+	}
+
+	public void ShowFlyingText(int gold) {
+		GameObject flyingTextObject = Instantiate (FlyingTextPrefab, transform.position, transform.rotation) as GameObject;
+		FlyingText flyingText = flyingTextObject.GetComponent<FlyingText> ();
+		flyingText.myText.text = "+" + gold;
+	}
+
+	public void GenerateGoldPerClients(int clients, int[] restaurantDishes) {	
+		int dishCount = 0;
+
+		foreach (var myDish in Dishes) {
+			foreach (var dish in restaurantDishes) {
+				if (myDish == dish) {
+					dishCount++;
+				}
+			}
+		}
+		float critChance = (float)dishCount / (float)restaurantDishes.Length;
+
+		int goldPerClient = (int)Utility.MathExpectation (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);
+		goldPerClient += (int)((float)goldPerClient * critChance);
+
+		int gold = goldPerClient * clients;
+		Gold = Mathf.Min (Gold + gold, MaxGoldByLevel[Level - 1]);
+		if (Gold > MaxGoldByLevel[Level - 1] / 3) {
+			GoldBubble.SetActive (true);
+		}	
 	}
 
 	public void InitializeFromData(CookData data) {
+		ItemCollections = new int[data.ItemCollections.Length];
+		data.ItemCollections.CopyTo (ItemCollections, 0);
+
+		TypeId = data.TypeId;
 		Id = data.Id;
 		transform.position = new Vector3(data.x, data.y, data.z);
 		Level = data.Level;
@@ -90,22 +170,10 @@ public class Cook : MonoBehaviour {
 		RaidReady = data.RaidReady;
 		Dishes = new int[data.Dishes.Length];
 		data.Dishes.CopyTo (Dishes, 0);
-
-		if (Id == Player.instance.currentCookId) {
-			if (Player.instance.StarCount == 3) {
-				RaidReady = true;
-			}
-			AddSoulstones (Player.instance.Soulstones);
-		}
+		Gold = data.Gold;
 	}
 
-	public void UpdateLabels() {
-		if (RaidReady) {
-			RaidButton.SetActive (true);
-		}
-		LevelLabel.text = Level.ToString ();
-		SoulstonesLabel.text = Soulstones + "/" + SoulstoneRequirementsPerLevel [Level - 1];
-		SoulstonesSlider.maxValue = SoulstoneRequirementsPerLevel [Level - 1];
-		SoulstonesSlider.value = Soulstones;
+	public void ShowInfo() {
+		OnInfoShow (this);
 	}
 }
