@@ -12,6 +12,7 @@ public class CookData {
 	public int Id;
 	public int[] Dishes;
 	public int Level;
+	public int GoldStorageLevel;
 	public int Soulstones;
 	public bool RaidReady;
 	public int Gold;
@@ -25,11 +26,12 @@ public class CookData {
 
 		ItemCollections = new int[cook.ItemCollections.Length];
 		cook.ItemCollections.CopyTo (ItemCollections, 0);
+		GoldStorageLevel = cook.GoldStorageLevel;
 		Gold = cook.Gold;
 		TypeId = cook.TypeId;
 		Id = cook.Id;
 		Level = cook.Level;
-		Soulstones = cook.Soulstones;
+		//Soulstones = cook.Soulstones;
 		RaidReady = cook.RaidReady;
 		Dishes = new int[cook.Dishes.Length];
 		cook.Dishes.CopyTo (Dishes, 0);

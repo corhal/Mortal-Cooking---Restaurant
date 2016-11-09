@@ -19,15 +19,17 @@ public class Cook : MonoBehaviour {
 	public bool Selected;
 
 	public int Level;
-	public int Soulstones;
+	public int GoldStorageLevel;
+	public int[] StarRequirementsPerStorageLevel;
+	//public int Soulstones;
 
 	public int[,] RangeGoldPerClientByLevel;
-	public int[] SoulstoneRequirementsPerLevel;
+	//public int[] SoulstoneRequirementsPerLevel;
 
 	public int TypeId;
 
 	public int Gold;
-	public int[] MaxGoldByLevel;
+	public int[] MaxGoldByStorageLevel;
 
 	public int ItemCollectionLength; // Я об этом очень пожалею. Это длина отрезков, на которые нужно резать следующий массив.
 	public int[] ItemCollections; // Могут подряд идти несколько одинаковых итемов
@@ -87,6 +89,10 @@ public class Cook : MonoBehaviour {
 		OnCollectGold (this);
 	}
 
+	public void GoldStorageLevelUp () {
+		GoldStorageLevel++;
+	}
+
 	public int GenerateGold() {
 		int gold = Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);		
 		return gold;
@@ -115,7 +121,7 @@ public class Cook : MonoBehaviour {
 			}
 		}
 		gold = client.GiveGold (gold);
-		if (Gold < MaxGoldByLevel[Level - 1]) {
+		if (Gold < MaxGoldByStorageLevel[GoldStorageLevel - 1]) {
 			GameObject flyingTextObject = Instantiate (FlyingTextPrefab, transform.position, transform.rotation) as GameObject;
 			FlyingText flyingText = flyingTextObject.GetComponent<FlyingText> ();
 			flyingText.myText.text = "+" + gold;
@@ -124,8 +130,8 @@ public class Cook : MonoBehaviour {
 			}
 		}
 
-		Gold = Mathf.Min (Gold + gold, MaxGoldByLevel[Level - 1]);
-		if (Gold > MaxGoldByLevel[Level - 1] / 3) {
+		Gold = Mathf.Min (Gold + gold, MaxGoldByStorageLevel[GoldStorageLevel - 1]);
+		if (Gold > MaxGoldByStorageLevel[GoldStorageLevel - 1] / 3) {
 			GoldBubble.SetActive (true);
 		}
 	}
@@ -152,8 +158,8 @@ public class Cook : MonoBehaviour {
 		goldPerClient += (int)((float)goldPerClient * critChance);
 
 		int gold = goldPerClient * clients;
-		Gold = Mathf.Min (Gold + gold, MaxGoldByLevel[Level - 1]);
-		if (Gold > MaxGoldByLevel[Level - 1] / 3) {
+		Gold = Mathf.Min (Gold + gold, MaxGoldByStorageLevel[GoldStorageLevel - 1]);
+		if (Gold > MaxGoldByStorageLevel[GoldStorageLevel - 1] / 3) {
 			GoldBubble.SetActive (true);
 		}	
 	}
@@ -166,7 +172,8 @@ public class Cook : MonoBehaviour {
 		Id = data.Id;
 		transform.position = new Vector3(data.x, data.y, data.z);
 		Level = data.Level;
-		Soulstones = data.Soulstones;
+		GoldStorageLevel = data.GoldStorageLevel;
+		//Soulstones = data.Soulstones;
 		RaidReady = data.RaidReady;
 		Dishes = new int[data.Dishes.Length];
 		data.Dishes.CopyTo (Dishes, 0);

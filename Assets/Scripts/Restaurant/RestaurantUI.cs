@@ -15,6 +15,8 @@ public class RestaurantUI : MonoBehaviour {
 	public Text EnergyText;
 	public Text SessionLabel;
 	public Text EnergyTipText;
+	public Text StarsText;
+	public Text RaidTicketsText;
 
 	void Awake () {
 		Restaurant.OnRestaurantInfoChanged += Restaurant_OnRestaurantInfoChanged;
@@ -25,6 +27,8 @@ public class RestaurantUI : MonoBehaviour {
 	}
 
 	void UpdateInfoLabel() { // TODO: разбить на раздельные методы
+		StarsText.text = "Stars: " + Restaurant.instance.Stars;
+		RaidTicketsText.text = "Tickets: " + Restaurant.instance.RaidTickets;
 		PrestigeLabel.text = Restaurant.instance.Prestige + "/" + Restaurant.instance.PrestigeRequirementsPerLevel [Restaurant.instance.PrestigeLevel - 1];
 		PrestigeLevelLabel.text = Restaurant.instance.PrestigeLevel.ToString();
 		PrestigeSlider.maxValue = Restaurant.instance.PrestigeRequirementsPerLevel [Restaurant.instance.PrestigeLevel - 1];

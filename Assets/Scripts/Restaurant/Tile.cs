@@ -19,6 +19,11 @@ public class Tile : MonoBehaviour {
 		}
 	}
 
+	public void BuildTile(int tileType) {
+		ChangeTile (tileType);
+		Restaurant.instance.AddPrestige (1); // потом поменять на что-то нормальное
+	}
+
 	public void ChangeTile (int tileType) {
 		TileType = tileType;
 		if (tileType == 1) {

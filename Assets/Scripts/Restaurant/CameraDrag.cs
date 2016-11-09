@@ -15,7 +15,7 @@ public class CameraDrag : MonoBehaviour
 	void Update() {		
 		cameraDragging = true;
 
-		if (DragController.ShouldDrag || FloorController.isInFloorMode) {
+		if (DragController.ShouldDrag || FloorController.isInFloorMode || Restaurant.instance.IsWindowOpen) {
 			cameraDragging = false;
 		}
 

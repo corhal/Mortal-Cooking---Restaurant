@@ -47,6 +47,13 @@ public class Client : MonoBehaviour {
 		}
 	}
 
+	public void Raid() {
+		if (Restaurant.instance.RaidTickets > 0 && Restaurant.instance.SpendEnergy (Restaurant.instance.EnergyCostPerMission)) {
+			Mission.GoldReward = GiveGold (Gold);
+			Restaurant.instance.RaidMission (Mission);
+		}
+	}
+
 	public int GiveGold(int amount) {
 		int goldToSpend = Mathf.Min (Gold, amount);
 		Gold -= goldToSpend;

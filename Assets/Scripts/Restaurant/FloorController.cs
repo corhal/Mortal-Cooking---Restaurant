@@ -7,6 +7,7 @@ public class FloorController : MonoBehaviour {
 	public int CurrentFloor;
 	Storage storage;
 
+	bool shouldDisableFloorMode;
 	public static bool isInFloorMode;
 	public int layerMask;
 	public int FloorCost;
@@ -22,22 +23,24 @@ public class FloorController : MonoBehaviour {
 
 	void Update() {
 		if (isInFloorMode) {
-			if (Input.GetMouseButton(0)) {
+			if (Input.GetMouseButton(0) && !Utility.IsPointerOverUIObject()) {
 				Debug.Log (Utility.CastRayToMouse (layerMask));
 				if (Utility.CastRayToMouse (layerMask) != null) {					
 					GameObject tile = Utility.CastRayToMouse (layerMask);
 					foreach (var tileSprite in storage.TileSprites) {
-						if (tileSprite == tile.GetComponent<SpriteRenderer>().sprite) {
-							//int index = System.Array.IndexOf (storage.TileSprites, tileSprite);
+						if (tileSprite == tile.GetComponent<SpriteRenderer>().sprite) {							
 							if (Restaurant.instance.SpendGold(FloorCost)) {
-								tile.GetComponent<Tile> ().ChangeTile (1);
-								//tile.GetComponent<SpriteRenderer> ().sprite = storage.FancyTileSprites [index];
+								tile.GetComponent<Tile> ().BuildTile (1);
 							} else {
-								isInFloorMode = false;
+								shouldDisableFloorMode = true;
 							}
 						}
 					}
 				}
+			}
+			if (Input.GetMouseButtonUp(0) && shouldDisableFloorMode) {
+				shouldDisableFloorMode = false;
+				isInFloorMode = false;
 			}
 		}
 	}

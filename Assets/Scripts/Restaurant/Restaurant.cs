@@ -40,6 +40,12 @@ public class Restaurant : MonoBehaviour {
 	int energy;
 	public int Energy { get { return energy; } }
 
+	int stars;
+	public int Stars { get { return stars; } }
+
+	int raidTickets;
+	public int RaidTickets { get { return raidTickets; } }
+
 	public int MaxEnergy;
 	public int Prestige;
 	public int PrestigeLevel;
@@ -70,6 +76,8 @@ public class Restaurant : MonoBehaviour {
 
 	public delegate void MissionEndedEventHandler (int gold, IEnumerable<int> items);
 	public static event MissionEndedEventHandler OnMissionEnded;
+
+	public bool IsWindowOpen;
 
 	void Awake() {
 		if (instance == null) {			
@@ -121,6 +129,7 @@ public class Restaurant : MonoBehaviour {
 		Tiles = FloorContainer.GetComponentsInChildren<Tile>();
 		if (data.TileTypes.Length > 0) {
 			for (int i = 0; i < data.TileTypes.Length; i++) {
+				Tiles [i].TileSpriteIndex = data.TileSpriteIndexes [i];
 				Tiles [i].ChangeTile (data.TileTypes [i]);
 			}
 		}
@@ -131,7 +140,9 @@ public class Restaurant : MonoBehaviour {
 		LastTime = data.LastTime;
 		energy = data.Energy;
 		gold = data.Gold;
+		raidTickets = data.RaidTickets;
 		starmoney = data.Starmoney;
+		stars = data.Stars;
 
 		for (int i = 0; i < data.CookDatas.Count; i++) {
 			GameObject cookObject = Instantiate (CookPrefabs[data.CookDatas[i].TypeId]) as GameObject;
@@ -171,11 +182,14 @@ public class Restaurant : MonoBehaviour {
 
 		if (Player.instance.HasWon) {
 			Player.instance.HasWon = false;
+			stars += Player.instance.StarCount;
+			// Player.instance.StarCount = 0; // В теории, в этом нет необходимости.
 			AddGold (Player.instance.GoldFromMission);
 			List<int> itemsWon = new List<int> ();
 			for (int i = 0; i < Player.instance.MyMission.ItemRewards.Length; i++) {
 				if (Random.Range(0.0f, 1.0f) < Player.instance.MyMission.ItemChances[i]) {
-					ItemCounts [Player.instance.MyMission.ItemRewards [i]]++;
+					AddItem (Player.instance.MyMission.ItemRewards [i]);
+					//ItemCounts [Player.instance.MyMission.ItemRewards [i]]++;
 					itemsWon.Add (Player.instance.MyMission.ItemRewards [i]);
 				}
 			}
@@ -185,27 +199,26 @@ public class Restaurant : MonoBehaviour {
 		OnRestaurantInfoChanged ();
 	}
 
-	void SkipTime(int seconds) {
-		int ticks = seconds / ClientsTickPeriod;
+	public void LevelUpCook(Cook cook) {		
+		if ((cook.GoldStorageLevel - 1) < cook.StarRequirementsPerStorageLevel.Length && Stars >= cook.StarRequirementsPerStorageLevel[cook.GoldStorageLevel - 1]) {
+			stars -= cook.StarRequirementsPerStorageLevel [cook.GoldStorageLevel - 1];
+			cook.GoldStorageLevelUp ();
+			OnRestaurantInfoChanged ();
+		}
+	}
 
-		List<int> removeIndexes = new List<int> ();
-		foreach (var client in CurrentClients) {
-			if (seconds > (int)client.LifeTimeLeft) {
-				removeIndexes.Add(CurrentClients.IndexOf(client));
-			}
-		}
-		foreach (var index in removeIndexes) {
-			if (CurrentClients.Count > index) {
-				CurrentClients [index].Die ();
-			}
-		}
+	void SkipTime(int seconds) {
+		
+		GenerateGoldPerTime (seconds);
+
+		int ticks = seconds / ClientsTickPeriod;
 
 		if (CurrentClients.Count == 0) {
 			WelcomeClients ();
 		}
 
 		int clientsCount = ((RangeClientsPerTickByLevel [PrestigeLevel - 1, 0] + RangeClientsPerTickByLevel [PrestigeLevel - 1, 1]) / 2) * ticks;
-		Debug.Log (clientsCount + " clients came why you were absent");
+		Debug.Log (clientsCount + " clients came while you were absent");
 		foreach (var cook in Cooks) {			
 			cook.GenerateGoldPerClients (clientsCount, Dishes);
 		}
@@ -258,10 +271,38 @@ public class Restaurant : MonoBehaviour {
 			AddCook ();
 		}
 	}
+
+	void GenerateGoldPerTime(int seconds) {
+		if (CurrentClients.Count > 0) {
+			int ticks = seconds / TickPeriod;
+			currentClient = 0;
+			for (int i = 0; i < ticks; i++) {
+				foreach (var cook in Cooks) { // каждый повар
+					if (currentClient >= CurrentClients.Count) { // переключается на следующего клиента
+						currentClient++;
+						if (currentClient >= CurrentClients.Count) {
+							currentClient = 0;
+						}
+					}
+					if (CurrentClients.Count > 0) {
+						cook.GenerateGold (CurrentClients[currentClient]); // генерит за него золото
+					}
+				}
+				foreach (var client in CurrentClients) {
+					client.LifeTimeLeft -= TickPeriod; // после этого происходит тик
+				}
+			}
+
+			if (CurrentClients.Count == 0) {
+				WelcomeClients ();
+			}
+		}
+	}
 		
 	int currentClient = 0;
+
 	void Update() {		
-		if (clientTimer == 0.0f) {			
+		if (clientTimer == 0.0f || CurrentClients.Count == 0) {			
 			WelcomeClients ();
 		}
 		if (timer == 0.0f && gold < MaxGoldPerLevel[PrestigeLevel - 1] && CurrentClients.Count > 0) {
@@ -320,21 +361,18 @@ public class Restaurant : MonoBehaviour {
 		}
 	}
 
-	void GenerateGold() {
-		//int clientsCount = Random.Range (RangeClientsPerTickByLevel [PrestigeLevel - 1, 0], RangeClientsPerTickByLevel [PrestigeLevel - 1, 1] + 1);
-		//int income = 0;
+	void GenerateGold() { // каждый повар генерит золото за одного какого-то клиента?
 		foreach (var cook in Cooks) {		
-			if (currentClient >= CurrentClients.Count) {
+			if (currentClient >= CurrentClients.Count) { // переключаемся на следующего клиента
 				currentClient++;
 				if (currentClient >= CurrentClients.Count) {
 					currentClient = 0;
 				}
 			}
 			if (CurrentClients.Count > 0) {
-				cook.GenerateGold (CurrentClients[currentClient]);
+				cook.GenerateGold (CurrentClients[currentClient]); // генерим за него золото
 			}
 		}
-		//AddGold(income);
 	}
 
 	public void Build(int buildingIndex) {
@@ -349,10 +387,6 @@ public class Restaurant : MonoBehaviour {
 		foreach (var cookPrefab in CookPrefabs) {
 			typeIds.Add(cookPrefab.GetComponent<Cook>().TypeId);
 		}
-
-		/*foreach (var cook in Cooks) {
-			typeIds.Remove (cook.TypeId);
-		}*/
 
 		int index = Random.Range (0, typeIds.Count);
 
@@ -379,11 +413,38 @@ public class Restaurant : MonoBehaviour {
 			tempDishes.RemoveAt (randIndex);
 		}
 
+		newCook.CheckItems (ItemCounts);
+
 		Cooks.Add (newCook);
 		newCook.Id = Cooks.Count;
 	}
 
-	void AddPrestige(int amount) {
+	public void RaidMission(MissionData mission) {		
+		//if (RaidTickets > 0) {
+			raidTickets--; // эта проверка сейчас происходит в клиенте =\
+			AddGold (mission.GoldReward);
+
+			//stars += 3; // ВРЕМЕННО, ПОТОМ УБРАТЬ!
+
+			List<int> itemsWon = new List<int> ();
+			for (int i = 0; i < mission.ItemRewards.Length; i++) {
+				if (Random.Range(0.0f, 1.0f) < mission.ItemChances[i]) {
+					AddItem (mission.ItemRewards [i]);
+					itemsWon.Add (mission.ItemRewards [i]);
+				}
+			}
+
+			if (CurrentClients.Count == 0) {			
+				WelcomeClients ();
+			}
+
+			OnMissionEnded (mission.GoldReward, itemsWon);
+
+			OnRestaurantInfoChanged ();
+		//}
+	}
+
+	public void AddPrestige(int amount) {
 		if (Prestige < PrestigeRequirementsPerLevel[PrestigeRequirementsPerLevel.Length - 1]) {
 			Prestige += amount;
 			if (PrestigeLevel < PrestigeRequirementsPerLevel.Length && Prestige >= PrestigeRequirementsPerLevel[PrestigeLevel - 1]) {
@@ -457,6 +518,19 @@ public class Restaurant : MonoBehaviour {
 
 	public void Toggle(GameObject window) {
 		window.SetActive (!window.activeSelf);
+		if (window.activeSelf) {
+			IsWindowOpen = true;
+		} else {
+			IsWindowOpen = false;
+		}
+	}
+
+	public void BreakItem(int item) {
+		if (ItemCounts[item] > 0) {
+			ItemCounts [item]--;
+			raidTickets++;
+			OnRestaurantInfoChanged ();
+		}
 	}
 
 	void OnDestroy() {

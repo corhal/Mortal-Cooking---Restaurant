@@ -7,7 +7,9 @@ public class RestaurantData {
 
 	public System.DateTime LastTime;
 	public int Gold;
+	public int Stars;
 	public int Starmoney;
+	public int RaidTickets;
 	public int Prestige;
 	public int PrestigeLevel;
 	public int[] CurrentBuildings;
@@ -17,6 +19,7 @@ public class RestaurantData {
 
 	public int[] ItemCounts;
 	public int[] TileTypes;
+	public int[] TileSpriteIndexes;
 	public int CookSpawnPointsCount = 5;
 
 	public List<CookData> CookDatas;
@@ -36,15 +39,19 @@ public class RestaurantData {
 
 	public void InitializeFromRestaurant(Restaurant restaurant) {
 		TileTypes = new int[restaurant.Tiles.Length];
+		TileSpriteIndexes = new int[restaurant.Tiles.Length];
 		for (int i = 0; i < restaurant.Tiles.Length; i++) {
+			TileSpriteIndexes [i] = restaurant.Tiles [i].TileSpriteIndex;
 			TileTypes [i] = restaurant.Tiles [i].TileType;
 		}
+		Stars = restaurant.Stars;
 		Starmoney = restaurant.Starmoney;	
 		ItemCounts = new int[restaurant.ItemCounts.Length];
 		restaurant.ItemCounts.CopyTo (ItemCounts, 0);
 		Session = restaurant.Session;	
 		CurrentBuildings = restaurant.CurrentBuildings;
 		Energy = restaurant.Energy;
+		RaidTickets = restaurant.RaidTickets;
 		CookSpawnPointsCount = restaurant.CookSpawnPoints.Count;
 		LastTime = System.DateTime.Now;
 		Gold = restaurant.Gold;

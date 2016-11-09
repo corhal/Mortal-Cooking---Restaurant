@@ -72,6 +72,8 @@
      <Compile Include="Assets\Scripts\Restaurant\DragController.cs" />
      <Compile Include="Assets\Scripts\Restaurant\FloorController.cs" />
      <Compile Include="Assets\Scripts\Restaurant\FlyingText.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\InventoryItem.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\InventoryWindow.cs" />
      <Compile Include="Assets\Scripts\Restaurant\MissionData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\MissionEndWindow.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Player.cs" />

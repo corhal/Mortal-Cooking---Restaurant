@@ -18,11 +18,12 @@ public class MissionEndWindow : MonoBehaviour {
 
 	public void UpdateInfo(int gold, IEnumerable<int> items) {
 		ContentContainer.SetActive (true);
-		string debriefing = "Your reward:\n";
-		debriefing += "Gold: " + gold + "\n";
+		string debriefing = "Your reward:\n\n";
+		debriefing += "Gold: " + gold + "\n\n";
 		foreach (var item in items) {
 			debriefing += "-" + Restaurant.instance.ItemNames [item] + " +1 (" + Restaurant.instance.ItemCounts [item] + ")\n";
 		}
+		debriefing += "\nStars: " + Player.instance.StarCount + " (" + Restaurant.instance.Stars + ")";
 		DebriefingText.text = debriefing;
 	}
 
