@@ -33,6 +33,14 @@ public class InventoryWindow : MonoBehaviour {
 		if (texts != null) {
 			for (int i = 0; i < Restaurant.instance.Items.Length; i++) {
 				texts [i].text = Restaurant.instance.ItemNames [Restaurant.instance.Items [i]] + ": " + Restaurant.instance.ItemCounts [i];
+				Button button = texts [i].gameObject.GetComponentInChildren<Button> ();
+				if (button != null) { // у меня определенно проблемы с порядком событий, но я пока не понимаю, как их решить
+					if (Restaurant.instance.ItemCounts [i] > 0) {
+						button.gameObject.SetActive (true);
+					} else {
+						button.gameObject.SetActive (false);
+					}
+				}
 			}
 		}
 	}

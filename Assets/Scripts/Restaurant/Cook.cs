@@ -105,13 +105,11 @@ public class Cook : MonoBehaviour {
 				gold *= 2;
 			}
 		}
-		GameObject flyingTextObject = Instantiate (FlyingTextPrefab, transform.position, transform.rotation) as GameObject;
-		FlyingText flyingText = flyingTextObject.GetComponent<FlyingText> ();
-		flyingText.myText.text = "+" + gold;
+		ShowFlyingText (gold);
 		return gold;
 	}
 
-	public void GenerateGold(Client client) {
+	public void GenerateGold(Client client, bool showText) {
 		bool crit = false;
 		int gold = Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);
 		foreach (var myDish in Dishes) {
@@ -122,11 +120,13 @@ public class Cook : MonoBehaviour {
 		}
 		gold = client.GiveGold (gold);
 		if (Gold < MaxGoldByStorageLevel[GoldStorageLevel - 1]) {
-			GameObject flyingTextObject = Instantiate (FlyingTextPrefab, transform.position, transform.rotation) as GameObject;
-			FlyingText flyingText = flyingTextObject.GetComponent<FlyingText> ();
-			flyingText.myText.text = "+" + gold;
-			if (crit) {
-				flyingText.myText.color = Color.yellow;
+			if (showText) {
+				GameObject flyingTextObject = Instantiate (FlyingTextPrefab, transform.position, transform.rotation) as GameObject;
+				FlyingText flyingText = flyingTextObject.GetComponent<FlyingText> ();
+				flyingText.myText.text = "+" + gold;
+				if (crit) {
+					flyingText.myText.color = Color.yellow;
+				}
 			}
 		}
 

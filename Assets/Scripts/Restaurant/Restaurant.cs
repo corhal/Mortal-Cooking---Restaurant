@@ -126,13 +126,13 @@ public class Restaurant : MonoBehaviour {
 
 	public void InitializeFromData(RestaurantData data) {	
 		//ItemCounts = new int[data.ItemCounts.Length];
-		Tiles = FloorContainer.GetComponentsInChildren<Tile>();
+		/*Tiles = FloorContainer.GetComponentsInChildren<Tile>();
 		if (data.TileTypes.Length > 0) {
 			for (int i = 0; i < data.TileTypes.Length; i++) {
 				Tiles [i].TileSpriteIndex = data.TileSpriteIndexes [i];
 				Tiles [i].ChangeTile (data.TileTypes [i]);
 			}
-		}
+		}*/
 		data.ItemCounts.CopyTo (ItemCounts, 0);	
 		Session = data.Session;
 		Prestige = data.Prestige;
@@ -285,7 +285,7 @@ public class Restaurant : MonoBehaviour {
 						}
 					}
 					if (CurrentClients.Count > 0) {
-						cook.GenerateGold (CurrentClients[currentClient]); // генерит за него золото
+						cook.GenerateGold (CurrentClients[currentClient], false); // генерит за него золото
 					}
 				}
 				foreach (var client in CurrentClients) {
@@ -370,7 +370,7 @@ public class Restaurant : MonoBehaviour {
 				}
 			}
 			if (CurrentClients.Count > 0) {
-				cook.GenerateGold (CurrentClients[currentClient]); // генерим за него золото
+				cook.GenerateGold (CurrentClients[currentClient], true); // генерим за него золото
 			}
 		}
 	}
