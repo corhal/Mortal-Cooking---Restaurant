@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class ClientData {
@@ -8,7 +9,8 @@ public class ClientData {
 	public float y;
 	public float z;
 
-	public int Dish;
+	//public int Dish;
+	public int[] Dishes;
 	public float LifeTimeLeft;
 
 	public int[] ItemRewards;
@@ -24,7 +26,13 @@ public class ClientData {
 		ItemChances = new float[ItemRewards.Length];
 		client.ItemChances.CopyTo (ItemChances, 0);
 
-		Dish = client.Dish;
+		/*if (client.Dishes != null) {
+			Dishes = new List<int> (client.Dishes);
+		}*/
+
+		Dishes = new int[client.Dishes.Length];
+		client.Dishes.CopyTo (Dishes, 0);
+
 		LifeTimeLeft = client.LifeTimeLeft;
 	}
 }

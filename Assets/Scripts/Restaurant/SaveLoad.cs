@@ -11,17 +11,19 @@ public static class SaveLoad {
 	public static void Save() {
 		savedData = Player.instance.MyRestaurant;
 		BinaryFormatter bf = new BinaryFormatter();
-		FileStream file = File.Create (Application.persistentDataPath + "/savedGames.gd");
-		bf.Serialize(file, SaveLoad.savedData);
-		file.Close();
+		using (FileStream file = File.Create (Application.persistentDataPath + "/savedGames.gd")) {
+			bf.Serialize (file, SaveLoad.savedData);
+			file.Close ();
+		}
 	}
 
 	public static void Load() {
 		if(File.Exists(Application.persistentDataPath + "/savedGames.gd")) {
 			BinaryFormatter bf = new BinaryFormatter();
-			FileStream file = File.Open(Application.persistentDataPath + "/savedGames.gd", FileMode.Open);
-			savedData = (RestaurantData)bf.Deserialize(file);
-			file.Close();
+			using (FileStream file = File.Open (Application.persistentDataPath + "/savedGames.gd", FileMode.Open)) {
+				savedData = (RestaurantData)bf.Deserialize (file);
+				file.Close ();
+			}
 		}
 	}
 

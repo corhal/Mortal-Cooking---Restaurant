@@ -14,6 +14,7 @@ public class RestaurantData {
 	public int PrestigeLevel;
 	public int[] CurrentBuildings;
 	public int Session;
+	public bool NotFirstTime;
 
 	public int Energy;
 
@@ -38,6 +39,7 @@ public class RestaurantData {
 	}
 
 	public void InitializeFromRestaurant(Restaurant restaurant) {
+		NotFirstTime = restaurant.NotFirstTime;
 		TileTypes = new int[restaurant.Tiles.Length];
 		TileSpriteIndexes = new int[restaurant.Tiles.Length];
 		for (int i = 0; i < restaurant.Tiles.Length; i++) {

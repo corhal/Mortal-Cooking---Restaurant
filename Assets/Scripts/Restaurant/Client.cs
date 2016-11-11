@@ -1,25 +1,32 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Client : MonoBehaviour {
+
+	public Cook MyCook;
 
 	public Text GoldText;
 	public Text DropText;
 	public Text DishText;
 
 	public MissionData Mission;
-	public int Dish;
+	public int[] Dishes;
 	public int[] ItemRewards;
 	public float[] ItemChances;
 	public float LifeTimeLeft;
 	public int Gold;
+
+	public int Readiness;
+	public int MaxReadiness;
 
 	public delegate void ClientDiedEventHandler (Client client);
 	public static event ClientDiedEventHandler OnClientDied;
 
 	void Awake() {
 		Mission = gameObject.GetComponent<MissionData> ();
+		// Dishes = new List<int> (); // если этого не делать, юнити вешается.
 	}
 
 	public void Start() {
@@ -36,7 +43,13 @@ public class Client : MonoBehaviour {
 		}
 
 		DropText.text = dropInfo;
-		DishText.text = "Dish: " + Dish;
+		string dishInfo = "Dishes:\n";
+
+		foreach (var dish in Dishes) {
+			dishInfo += dish + "\n";
+		}
+
+		DishText.text = dishInfo;
 	}
 
 	public void Play() {
@@ -71,7 +84,12 @@ public class Client : MonoBehaviour {
 		ItemChances = new float[ItemRewards.Length];
 		data.ItemChances.CopyTo (ItemChances, 0);
 
-		Dish = data.Dish;
+		/*if (data.Dishes != null) {
+			Dishes = new List<int> (data.Dishes);
+		}*/
+
+		Dishes = new int[data.Dishes.Length];
+	    data.Dishes.CopyTo(Dishes, 0);
 
 		Mission.ItemRewards = new int[ItemRewards.Length];
 		Mission.ItemChances = new float[ItemChances.Length];
@@ -86,7 +104,13 @@ public class Client : MonoBehaviour {
 		}
 
 		DropText.text = dropInfo;
-		DishText.text = "Dish: " + Dish;
+		string dishInfo = "Dishes:\n";
+
+		foreach (var dish in Dishes) {
+			dishInfo += dish + "\n";
+		}
+
+		DishText.text = dishInfo;
 	}
 
 	void Update() {
@@ -94,6 +118,13 @@ public class Client : MonoBehaviour {
 
 		LifeTimeLeft -= Time.deltaTime;
 		if (LifeTimeLeft <= 0) {
+			Die ();
+		}
+	}
+
+	public void AddReadiness(int amount) {
+		Readiness += amount;
+		if (Readiness >= MaxReadiness) {
 			Die ();
 		}
 	}

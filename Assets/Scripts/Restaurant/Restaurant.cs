@@ -6,6 +6,11 @@ using System.Collections.Generic;
 
 public class Restaurant : MonoBehaviour {
 
+	/*
+	 * Запомни, дорогой читатель: если ты пытаешься инициализировать List<T> другим List<T>, но другой List<T> null,
+	 * Юнити не кидает эксепшен. Он вешается и забирает твой компьютер с собой в могилу.
+	 */
+
 	public int EnergyCostPerMission;
 
 	public ParticleSystem LevelUpParticles;
@@ -56,6 +61,7 @@ public class Restaurant : MonoBehaviour {
 	public int ClientsTickPeriod;
 
 	public int[] Dishes;
+	public int[] DishCosts;
 	public int[] Items;
 	public string[] ItemNames;
 	public int[] ItemCounts;
@@ -108,8 +114,35 @@ public class Restaurant : MonoBehaviour {
 	}
 
 	void Client_OnClientDied (Client client) {
+		if (client.MyCook != null) {
+			client.MyCook.CheckoutClient (client);
+		}
+
 		CurrentClients.Remove (client);
+		if (CurrentClients.Count == 0) {
+			WelcomeClients ();
+		}
+
+		foreach (var curClient in CurrentClients) {
+			if (client.MyCook != null && curClient.MyCook == null) {
+				client.MyCook.ChangeClient (curClient);
+				break;
+			}
+		}
+
 		Destroy (client.gameObject);
+	}
+
+	void AssignCooks() {
+		foreach (var cook in Cooks) {
+			foreach (var curClient in CurrentClients) {
+				if (curClient.MyCook == null) {
+					Debug.Log ("should assign cook");
+					cook.ChangeClient (curClient);
+					break;
+				}
+			}
+		}
 	}
 
 	void Cook_OnCollectGold (Cook cook) {
@@ -124,15 +157,19 @@ public class Restaurant : MonoBehaviour {
 		cook.Gold = leftover;
 	}
 
+	public UnityEngine.UI.Text TimeLabel;
+	public bool NotFirstTime;
+
 	public void InitializeFromData(RestaurantData data) {	
 		//ItemCounts = new int[data.ItemCounts.Length];
-		/*Tiles = FloorContainer.GetComponentsInChildren<Tile>();
+		NotFirstTime = data.NotFirstTime;
+		Tiles = FloorContainer.GetComponentsInChildren<Tile>();
 		if (data.TileTypes.Length > 0) {
 			for (int i = 0; i < data.TileTypes.Length; i++) {
 				Tiles [i].TileSpriteIndex = data.TileSpriteIndexes [i];
 				Tiles [i].ChangeTile (data.TileTypes [i]);
 			}
-		}*/
+		}
 		data.ItemCounts.CopyTo (ItemCounts, 0);	
 		Session = data.Session;
 		Prestige = data.Prestige;
@@ -171,14 +208,20 @@ public class Restaurant : MonoBehaviour {
 
 
 		System.TimeSpan ts = System.DateTime.Now.Subtract (LastTime);
+		//TimeLabel.text = ((int)ts.TotalSeconds).ToString();
+		int seconds = (int)ts.TotalSeconds;
+		//Debug.Log (seconds > 0);
 
-		if ((int)ts.TotalSeconds > 0) {		
-			SkipTime ((int)ts.TotalSeconds);
+		if (NotFirstTime && seconds > 0) {		
+			Debug.Log ("Skipping time smh");
+			SkipTime (seconds);
 		}
 
 		while (CookSpawnPoints.Count > data.CookSpawnPointsCount) {
 			CookSpawnPoints.RemoveAt(0);
 		}
+
+		AssignCooks (); // temp
 
 		if (Player.instance.HasWon) {
 			Player.instance.HasWon = false;
@@ -197,6 +240,7 @@ public class Restaurant : MonoBehaviour {
 			OnMissionEnded (Player.instance.GoldFromMission, itemsWon);
 		}
 		OnRestaurantInfoChanged ();
+		NotFirstTime = true;
 	}
 
 	public void LevelUpCook(Cook cook) {		
@@ -306,11 +350,11 @@ public class Restaurant : MonoBehaviour {
 			WelcomeClients ();
 		}
 		if (timer == 0.0f && gold < MaxGoldPerLevel[PrestigeLevel - 1] && CurrentClients.Count > 0) {
-			currentClient++;
+			/*currentClient++;
 			if (currentClient >= CurrentClients.Count) {
 				currentClient = 0;
 			}
-			GenerateGold ();
+			GenerateGold ();*/
 		}
 		if (energyTimer == 0.0f && energy < MaxEnergy) {				
 			energy += EnergyPerTick;
@@ -347,17 +391,26 @@ public class Restaurant : MonoBehaviour {
 		for (int i = 0; i <= clientsCount; i++) {
 			GameObject newClientObject = Instantiate (ClientPrefab, RandomRestaurantPoint(), ClientPrefab.transform.rotation) as GameObject;
 			Client newClient = newClientObject.GetComponent<Client> ();
-			int index = Random.Range (0, Dishes.Length);
-			newClient.Dish = Dishes [index];
+
+			for (int j = 0; j < newClient.Dishes.Length; j++) {
+				int index = Random.Range (0, Dishes.Length);
+				//newClient.Dishes.Add (Dishes [index]);
+				newClient.Dishes[j] = Dishes [index];
+			}
+
 			newClient.ItemRewards = new int[3];
 			newClient.ItemChances = new float[newClient.ItemRewards.Length];
 			for (int j = 0; j < newClient.ItemRewards.Length; j++) {
-				index = Random.Range (0, Items.Length);
+				int index = Random.Range (0, Items.Length);
 				newClient.ItemRewards [j] = Items [index];
 				newClient.ItemChances [j] = Random.Range (0.3f, 0.8f);
 			}
-
 			CurrentClients.Add (newClient);
+		}
+		for (int i = 0; i < Cooks.Count; i++) {
+			if (CurrentClients[i] != null) {
+				Cooks [i].ChangeClient (CurrentClients [i]);
+			}
 		}
 	}
 
