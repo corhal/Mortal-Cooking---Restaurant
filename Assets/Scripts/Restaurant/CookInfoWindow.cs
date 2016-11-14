@@ -28,9 +28,12 @@ public class CookInfoWindow : MonoBehaviour {
 		CurrentCook = cook;	
 		string levelString = "Level " + cook.Level + "\n";
 		int[] itemCollection = cook.CurrentCollection ();
-		for (int i = 0; i < itemCollection.Length; i++) {
-			levelString += Restaurant.instance.ItemNames[itemCollection [i]] + ": " + Restaurant.instance.ItemCounts [itemCollection [i]] + "/1\n";
+		if (itemCollection != null) {
+			for (int i = 0; i < itemCollection.Length; i++) {
+				levelString += Restaurant.instance.ItemNames[itemCollection [i]] + ": " + Restaurant.instance.ItemCounts [itemCollection [i]] + "/1\n";
+			}
 		}
+
 		LevelText.text = levelString;
 
 		string dishString = "Best dishes:\n";
@@ -40,8 +43,8 @@ public class CookInfoWindow : MonoBehaviour {
 		DishText.text = dishString;
 
 		string goldString = "Gold per client: " + cook.RangeGoldPerClientByLevel [cook.Level - 1, 0] + "-" + cook.RangeGoldPerClientByLevel [cook.Level - 1, 1] + "\n\n";
-		goldString += "Gold storage lvl: " + cook.GoldStorageLevel + " (stars " + Restaurant.instance.Stars + "/" + cook.StarRequirementsPerStorageLevel[cook.GoldStorageLevel - 1] + ")\n\n";
-		goldString += "Gold now: " + cook.Gold + "/" + cook.MaxGoldByStorageLevel [cook.GoldStorageLevel - 1];
+		//goldString += "Gold storage lvl: " + cook.GoldStorageLevel + " (stars " + Restaurant.instance.Stars + "/" + cook.StarRequirementsPerStorageLevel[cook.GoldStorageLevel - 1] + ")\n\n";
+		//goldString += "Gold now: " + cook.Gold + "/" + cook.MaxGoldByStorageLevel [cook.GoldStorageLevel - 1];
 		GoldText.text = goldString;
 	}
 

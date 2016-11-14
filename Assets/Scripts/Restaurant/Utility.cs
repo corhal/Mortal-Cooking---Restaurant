@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public static class Utility {
 
@@ -47,5 +48,22 @@ public static class Utility {
 	public static float MathExpectation(float intervalStart, float intervalEnd) {
 		float sum = (intervalStart + intervalEnd) * (intervalEnd - intervalStart + 1) / 2;
 		return sum / (intervalEnd - intervalStart);
+	}
+
+	public static IOrderedEnumerable<KeyValuePair<Client, int>> SortDictionary(Dictionary<Client, int> dictionary, bool descending) {
+		// Order by values.
+		// ... Use LINQ to specify sorting by value.
+		IOrderedEnumerable<KeyValuePair<Client, int>> items = null;
+		if (!descending) {
+			items = from pair in dictionary
+				orderby pair.Value ascending
+				select pair;
+		} else {
+			items = from pair in dictionary
+				orderby pair.Value descending
+				select pair;
+		}	
+
+		return items;		
 	}
 }

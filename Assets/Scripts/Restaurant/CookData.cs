@@ -12,6 +12,8 @@ public class CookData {
 	public int Id;
 	public int[] Dishes;
 	public int Level;
+	public int CurrentClientIndex;
+	public int CurrentDish;
 	public int GoldStorageLevel;
 	public int Soulstones;
 	public bool RaidReady;
@@ -24,10 +26,12 @@ public class CookData {
 		y = cook.transform.position.y;
 		z = cook.transform.position.z;
 
+		CurrentClientIndex = Restaurant.instance.CurrentClients.IndexOf (cook.currentClient);
 		ItemCollections = new int[cook.ItemCollections.Length];
 		cook.ItemCollections.CopyTo (ItemCollections, 0);
-		GoldStorageLevel = cook.GoldStorageLevel;
-		Gold = cook.Gold;
+		CurrentDish = cook.CurrentDish;
+		//GoldStorageLevel = cook.GoldStorageLevel;
+		//Gold = cook.Gold;
 		TypeId = cook.TypeId;
 		Id = cook.Id;
 		Level = cook.Level;

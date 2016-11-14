@@ -14,7 +14,7 @@ public class Building : MonoBehaviour {
 	int prestige;
 	public int Prestige { get { return prestige; } }
 
-	int typeId;
+	public int typeId;
 	public int TypeId { get { return typeId; } }
 
 	public int[] InitialCountLimitByPrestigeLevel;

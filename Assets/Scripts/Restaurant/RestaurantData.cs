@@ -26,6 +26,7 @@ public class RestaurantData {
 	public List<CookData> CookDatas;
 	public List<BuildingData> BuildingDatas;
 	public List<ClientData> ClientDatas;
+	public CashRegisterData cashRegisterData;
 
 	public bool NeedsWipe;
 
@@ -63,6 +64,9 @@ public class RestaurantData {
 		CookDatas.Clear ();
 		BuildingDatas.Clear ();
 		ClientDatas.Clear ();
+
+		cashRegisterData = new CashRegisterData ();
+		cashRegisterData.InitializeFromCashRegister (restaurant.cashRegister);
 
 		for (int i = 0; i < restaurant.Cooks.Count; i++) {
 			CookDatas.Add (new CookData ());

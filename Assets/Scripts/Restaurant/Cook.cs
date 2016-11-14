@@ -10,6 +10,8 @@ public class Cook : MonoBehaviour {
 	public int[] Dishes;
 	public CookData cookData;
 
+	public int CurrentDish;
+	public int CurrentDishIndex;
 	public Client currentClient;
 
 	Restaurant restaurant;
@@ -19,31 +21,26 @@ public class Cook : MonoBehaviour {
 	public bool RaidReady;
 
 	public float CookPeriod;
+	public int CookPower;
 	float timer;
 
 	public bool Selected;
+	public bool IsCooking;
 
 	public int Level;
-	public int GoldStorageLevel;
-	public int[] StarRequirementsPerStorageLevel;
-	//public int Soulstones;
 
 	public int[,] RangeGoldPerClientByLevel;
-	//public int[] SoulstoneRequirementsPerLevel;
 
 	public int TypeId;
-
-	public int Gold;
-	public int[] MaxGoldByStorageLevel;
 
 	public int ItemCollectionLength; // Я об этом очень пожалею. Это длина отрезков, на которые нужно резать следующий массив.
 	public int[] ItemCollections; // Могут подряд идти несколько одинаковых итемов
 
-	public delegate void CollectGoldEventHandler (Cook cook);
-	public static event CollectGoldEventHandler OnCollectGold;
-
 	public delegate void ShowInfoEventHandler (Cook cook);
 	public static event ShowInfoEventHandler OnInfoShow;
+
+	public delegate void FreeNowEventHandler (Cook cook);
+	public static event FreeNowEventHandler OnCookFreeNow;
 
 	CookUI myUI;
 
@@ -60,6 +57,19 @@ public class Cook : MonoBehaviour {
 
 		line = gameObject.GetComponent<LineRenderer> ();
 		pointsList = new List<Vector3> ();
+		Client.OnClientDied += Client_OnClientDied;
+	}
+
+	void Client_OnClientDied (Client client) {		
+		if (currentClient != null) {
+			currentClient.OnDishReady -= Client_OnDishReady;
+		}
+		currentClient = null;
+		CurrentDish = -1;
+		CurrentDishIndex = -1;
+		IsCooking = false;
+		DrawLine (gameObject.transform.position);
+		OnCookFreeNow (this);
 	}
 
 	void Start() {
@@ -69,160 +79,109 @@ public class Cook : MonoBehaviour {
 	public void CheckItems(int[] itemCounts) { // здесь хранятся КОЛИЧЕСТВА предметов по ИНДЕКСУ		
 		int[] itemCollection = CurrentCollection ();
 
-		int count = 0;
-		foreach (var item in itemCollection) { // Пока предметы не могут повторяться(
-			if (itemCounts[item] > 0) {
-				count++;
+		if (itemCollection != null) {
+			int count = 0;
+			foreach (var item in itemCollection) { // Пока предметы не могут повторяться(
+				if (itemCounts[item] > 0) {
+					count++;
+				}
 			}
-		}
-		if (count >= ItemCollectionLength) {
-			Level++;
-			myUI.UpdateLabels ();
+			if (count >= ItemCollectionLength) {
+				Level++;
+				myUI.UpdateLabels ();
+			}
 		}
 	}
 
 	public int[] CurrentCollection () {
-		int curLevel = Level - 1;
-		int startIndex = curLevel * ItemCollectionLength;
-		int[] itemCollection = new int[ItemCollectionLength]; // здесь хранятся ИНДЕКСЫ предметов
-		for (int i = 0; i < itemCollection.Length; i++) {
-			itemCollection [i] = ItemCollections [startIndex];
-			startIndex++;
+		if (Level < 5) {
+			int curLevel = Level - 1;
+			int startIndex = curLevel * ItemCollectionLength;
+			int[] itemCollection = new int[ItemCollectionLength]; // здесь хранятся ИНДЕКСЫ предметов
+			for (int i = 0; i < itemCollection.Length; i++) {
+				itemCollection [i] = ItemCollections [startIndex];
+				startIndex++;
+			}
+			return itemCollection;
 		}
-		return itemCollection;
-	}
-
-	public void CollectGold() {
-		GoldBubble.SetActive (false);
-		OnCollectGold (this);
-	}
-
-	public void GoldStorageLevelUp () {
-		GoldStorageLevel++;
+		return null;
 	}
 
 	public void ChangeClient(Client client) {
 		timer = 0.0f;
-		client.MyCook = this;
+		client.ChangeCook (this);
 		currentClient = client;
 		DrawLine (client.gameObject.transform.position);
 	}
-
-	public void CheckoutClient(Client client) {
+	
+	/*public void CheckoutGhostClient(GhostClient ghostClient) {
 		int income = 0;
 		int rewardsCount = 3;
 
-		if (client.Readiness < client.MaxReadiness) {
-			rewardsCount--;
-		}
-		if (client.Readiness < client.MaxReadiness / 2) {
-			rewardsCount--;
-		}
-
 		for (int i = 0; i < rewardsCount; i++) {
 			int addition = 0;
-			addition = Restaurant.instance.DishCosts [client.Dishes [i]];
+			addition = Restaurant.instance.DishCosts [ghostClient.Dishes [i]];
 
 			foreach (var dish in Dishes) {
-				if (client.Dishes [i] == dish) {					
+				if (ghostClient.Dishes [i] == dish) {					
 					addition *= 2;
 				}
 			}
 			income += addition;
 		}
-		AddGold (income);
-		currentClient = null;
-		DrawLine (gameObject.transform.position);
-	}
-
-	void AddGold(int amount) {
-		if (Gold < MaxGoldByStorageLevel[GoldStorageLevel - 1]) {
-			//if (showText) {
-			ShowFlyingText(amount);
-			//}
-		}
-
-		Gold = Mathf.Min (Gold + amount, MaxGoldByStorageLevel[GoldStorageLevel - 1]);
-		if (Gold > MaxGoldByStorageLevel[GoldStorageLevel - 1] / 3) {
-			GoldBubble.SetActive (true);
-		}
-	}
+		//AddGold (income, false);
+		Debug.Log("Checking out GHOST client, adding " + income + " gold");
+		Debug.Log ("GHOST client readiness was " + currentClient.Readiness);
+	}*/	
 
 	void Update() {
 		timer += Time.deltaTime;
-		if (currentClient != null && timer >= CookPeriod) {
-			currentClient.AddReadiness (1);
+		if (IsCooking && currentClient != null && timer >= CookPeriod) {
+			ServeClient ();
 			timer = 0.0f;
 		}
 	}
 
-	public int GenerateGold(int dish) {
-		int gold = Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);
-		foreach (var myDish in Dishes) {
-			if (myDish == dish) {
-				gold *= 2;
-			}
+	public void ServeClient() {
+		if (currentClient != null) {
+			currentClient.AddReadiness (CurrentDish, CookPower);
 		}
-		ShowFlyingText (gold);
-		return gold;
 	}
 
-	public void GenerateGold(Client client, bool showText) {
+	public void TakeOrder(Client client, int dish) {
+		currentClient = client;
+		//client.ChangeCook (this); // теперь у клиента может быть больше 1 повара!
+		client.OnDishReady += Client_OnDishReady;
+		CurrentDish = dish;
+		CurrentDishIndex = System.Array.IndexOf (client.Dishes, CurrentDish);
+		client.FreeDishes [CurrentDishIndex] = false;
+		foreach (var cookDish in Dishes) {
+			if (CurrentDish == cookDish) {				
+				client.Crits [CurrentDishIndex] = true;
+			}
+		}
 		DrawLine (client.gameObject.transform.position);
-		bool crit = false;
-		int gold = Random.Range (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);
-		foreach (var myDish in Dishes) {
-			foreach (var clientDish in client.Dishes) {
-				if (myDish == clientDish) {
-					gold *= 2;
-					crit = true;
-				}
-			}
-		}
-		gold = client.GiveGold (gold);
-		if (Gold < MaxGoldByStorageLevel[GoldStorageLevel - 1]) {
-			if (showText) {
-				GameObject flyingTextObject = Instantiate (FlyingTextPrefab, transform.position, transform.rotation) as GameObject;
-				FlyingText flyingText = flyingTextObject.GetComponent<FlyingText> ();
-				flyingText.myText.text = "+" + gold;
-				if (crit) {
-					flyingText.myText.color = Color.yellow;
-				}
-			}
-		}
+		IsCooking = true;
+	}
 
-		Gold = Mathf.Min (Gold + gold, MaxGoldByStorageLevel[GoldStorageLevel - 1]);
-		if (Gold > MaxGoldByStorageLevel[GoldStorageLevel - 1] / 3) {
-			GoldBubble.SetActive (true);
+	void Client_OnDishReady (int dish) {
+		Debug.Log ("Dish ready");
+		currentClient.AddReadiness (1);
+		if (currentClient != null) {
+			currentClient.OnDishReady -= Client_OnDishReady;
 		}
+		currentClient = null;
+		CurrentDish = -1;
+		CurrentDishIndex = -1;
+		IsCooking = false;
+		DrawLine (gameObject.transform.position);
+		OnCookFreeNow (this);
 	}
 
 	public void ShowFlyingText(int gold) {
 		GameObject flyingTextObject = Instantiate (FlyingTextPrefab, transform.position, transform.rotation) as GameObject;
 		FlyingText flyingText = flyingTextObject.GetComponent<FlyingText> ();
 		flyingText.myText.text = "+" + gold;
-	}
-
-	public void GenerateGoldPerClients(int clients, int[] restaurantDishes) {	
-		int dishCount = 0;
-
-		foreach (var myDish in Dishes) {
-			foreach (var dish in restaurantDishes) {
-				if (myDish == dish) {
-					dishCount++;
-				}
-			}
-		}
-		float critChance = (float)dishCount / (float)restaurantDishes.Length;
-
-		int goldPerClient = (int)Utility.MathExpectation (RangeGoldPerClientByLevel [Level - 1, 0], RangeGoldPerClientByLevel [Level - 1, 1] + 1);
-		goldPerClient += (int)((float)goldPerClient * critChance);
-
-		int gold = goldPerClient * clients;
-		Gold = Mathf.Min (Gold + gold, MaxGoldByStorageLevel[GoldStorageLevel - 1]);
-		if (Gold > MaxGoldByStorageLevel[GoldStorageLevel - 1] / 3) {
-			GoldBubble.SetActive (true);
-		}	
 	}
 
 	public void InitializeFromData(CookData data) {
@@ -233,12 +192,14 @@ public class Cook : MonoBehaviour {
 		Id = data.Id;
 		transform.position = new Vector3(data.x, data.y, data.z);
 		Level = data.Level;
-		GoldStorageLevel = data.GoldStorageLevel;
-		//Soulstones = data.Soulstones;
 		RaidReady = data.RaidReady;
 		Dishes = new int[data.Dishes.Length];
 		data.Dishes.CopyTo (Dishes, 0);
-		Gold = data.Gold;
+
+		if (Restaurant.instance.CurrentClients.Count > 0 && data.CurrentClientIndex >= 0 && data.CurrentClientIndex < Restaurant.instance.CurrentClients.Count) {		
+			TakeOrder(Restaurant.instance.CurrentClients [data.CurrentClientIndex], data.CurrentDish);
+			//currentClient = Restaurant.instance.CurrentClients [data.CurrentClientIndex];
+		}
 	}
 
 	public void ShowInfo() {
@@ -262,5 +223,12 @@ public class Cook : MonoBehaviour {
 
 		line.SetVertexCount (pointsList.Count);
 		line.SetPositions (vectors);
+	}
+
+	void OnDestroy() {
+		if (currentClient != null) {
+			currentClient.OnDishReady -= Client_OnDishReady;
+		}
+		Client.OnClientDied -= Client_OnClientDied;
 	}
 }

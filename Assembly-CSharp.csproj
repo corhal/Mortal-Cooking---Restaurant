@@ -60,10 +60,14 @@
      <Compile Include="Assets\Scripts\Restaurant\BuildingData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\BuildingNode.cs" />
      <Compile Include="Assets\Scripts\Restaurant\CameraDrag.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\CashRegister.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\CashRegisterData.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\CashRegisterUI.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Chest.cs" />
      <Compile Include="Assets\Scripts\Restaurant\ChestWindow.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Client.cs" />
      <Compile Include="Assets\Scripts\Restaurant\ClientData.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\ClientUI.cs" />
      <Compile Include="Assets\Scripts\Restaurant\Cook.cs" />
      <Compile Include="Assets\Scripts\Restaurant\CookData.cs" />
      <Compile Include="Assets\Scripts\Restaurant\CookInfoWindow.cs" />
@@ -72,6 +76,7 @@
      <Compile Include="Assets\Scripts\Restaurant\DragController.cs" />
      <Compile Include="Assets\Scripts\Restaurant\FloorController.cs" />
      <Compile Include="Assets\Scripts\Restaurant\FlyingText.cs" />
+     <Compile Include="Assets\Scripts\Restaurant\GhostClient.cs" />
      <Compile Include="Assets\Scripts\Restaurant\InventoryItem.cs" />
      <Compile Include="Assets\Scripts\Restaurant\InventoryWindow.cs" />
      <Compile Include="Assets\Scripts\Restaurant\MissionData.cs" />
