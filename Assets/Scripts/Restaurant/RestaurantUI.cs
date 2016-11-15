@@ -35,26 +35,17 @@ public class RestaurantUI : MonoBehaviour {
 		PrestigeSlider.value = Restaurant.instance.Prestige;
 
 		string goldString = Restaurant.instance.Gold.ToString();
-		string maxGoldString = Restaurant.instance.MaxGoldPerLevel [Restaurant.instance.PrestigeLevel - 1].ToString ();
 		if (Restaurant.instance.Gold > 1000) {
 			int hundreds = Restaurant.instance.Gold / 100;
 			string num = hundreds.ToString ();
 			string firstPart = num.Substring (0, num.Length - 1);
 			string secondPart = num.Substring (num.Length - 1, 1);
-			goldString = /*(Restaurant.instance.Gold / 1000)*/ firstPart + "." + secondPart + "k";
-		}
-		if (Restaurant.instance.MaxGoldPerLevel [Restaurant.instance.PrestigeLevel - 1] > 1000) {
-			int maxGold = Restaurant.instance.MaxGoldPerLevel [Restaurant.instance.PrestigeLevel - 1];
-			int hundreds = maxGold / 100;
-			string num = hundreds.ToString ();
-			string firstPart = num.Substring (0, num.Length - 1);
-			string secondPart = num.Substring (num.Length - 1, 1);
-			maxGoldString = /*(Restaurant.instance.MaxGoldPerLevel [Restaurant.instance.PrestigeLevel - 1] / 1000)*/ firstPart + "." + secondPart + "k";
+			goldString = firstPart + "." + secondPart + "k";
 		}
 
-		GoldText.text = goldString + "/" + maxGoldString;
-		GoldSlider.maxValue = Restaurant.instance.MaxGoldPerLevel [Restaurant.instance.PrestigeLevel - 1];
-		GoldSlider.value = Restaurant.instance.Gold;
+		GoldText.text = goldString;
+		GoldSlider.maxValue = 0;
+		GoldSlider.value = 0;
 
 		EnergyText.text = Restaurant.instance.Energy + "/" + Restaurant.instance.MaxEnergy;
 		EnergySlider.maxValue = Restaurant.instance.MaxEnergy;
@@ -66,10 +57,7 @@ public class RestaurantUI : MonoBehaviour {
 		int clientsMax = Restaurant.instance.RangeClientsPerTickByLevel [Restaurant.instance.PrestigeLevel - 1, 1];
 		int goldMin = 0;
 		int goldMax = 0;
-		foreach (var cook in Restaurant.instance.Cooks) {
-			goldMin += cook.RangeGoldPerClientByLevel [cook.Level - 1, 0];
-			goldMax += cook.RangeGoldPerClientByLevel [cook.Level - 1, 1];
-		}
+
 		int incomeMin = goldMin * clientsMin;
 		int incomeMax = goldMax * clientsMax;
 

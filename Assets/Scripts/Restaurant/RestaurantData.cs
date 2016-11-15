@@ -18,15 +18,14 @@ public class RestaurantData {
 
 	public int Energy;
 
+	public DishRecipe[] DishRecipes;
 	public int[] ItemCounts;
 	public int[] TileTypes;
 	public int[] TileSpriteIndexes;
 	public int CookSpawnPointsCount = 5;
 
-	public List<CookData> CookDatas;
 	public List<BuildingData> BuildingDatas;
 	public List<ClientData> ClientDatas;
-	public CashRegisterData cashRegisterData;
 
 	public bool NeedsWipe;
 
@@ -35,12 +34,15 @@ public class RestaurantData {
 		Prestige = prestige;
 		PrestigeLevel = prestigeLevel;
 
-		CookDatas = new List<CookData> ();
 		BuildingDatas = new List<BuildingData> ();
 	}
 
 	public void InitializeFromRestaurant(Restaurant restaurant) {
 		NotFirstTime = restaurant.NotFirstTime;
+
+		DishRecipes = new DishRecipe[restaurant.DishRecipes.Length];
+		restaurant.DishRecipes.CopyTo (DishRecipes, 0);
+
 		TileTypes = new int[restaurant.Tiles.Length];
 		TileSpriteIndexes = new int[restaurant.Tiles.Length];
 		for (int i = 0; i < restaurant.Tiles.Length; i++) {
@@ -55,23 +57,13 @@ public class RestaurantData {
 		CurrentBuildings = restaurant.CurrentBuildings;
 		Energy = restaurant.Energy;
 		RaidTickets = restaurant.RaidTickets;
-		CookSpawnPointsCount = restaurant.CookSpawnPoints.Count;
 		LastTime = System.DateTime.Now;
 		Gold = restaurant.Gold;
 		Prestige = restaurant.Prestige;
 		PrestigeLevel = restaurant.PrestigeLevel;
 
-		CookDatas.Clear ();
 		BuildingDatas.Clear ();
 		ClientDatas.Clear ();
-
-		cashRegisterData = new CashRegisterData ();
-		cashRegisterData.InitializeFromCashRegister (restaurant.cashRegister);
-
-		for (int i = 0; i < restaurant.Cooks.Count; i++) {
-			CookDatas.Add (new CookData ());
-			CookDatas [i].InitializeFromCook (restaurant.Cooks [i]);
-		}
 
 		for (int i = 0; i < restaurant.Buildings.Count; i++) {
 			BuildingDatas.Add (new BuildingData ());

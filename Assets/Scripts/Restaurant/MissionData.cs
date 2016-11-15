@@ -3,6 +3,8 @@ using System.Collections;
 
 public class MissionData : MonoBehaviour {
 
+	public int[] Dishes;
+
 	public int MinPointsPerAction;
 	public int MaxPointPerAction;
 
@@ -34,5 +36,8 @@ public class MissionData : MonoBehaviour {
 		ItemChances = new float[ItemRewards.Length];
 		missionData.ItemRewards.CopyTo(ItemRewards, 0);
 		missionData.ItemChances.CopyTo(ItemChances, 0);
+
+		Dishes = new int[missionData.Dishes.Length];
+		missionData.Dishes.CopyTo (Dishes, 0);
 	}
 }
