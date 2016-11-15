@@ -54,7 +54,9 @@ public class Client : MonoBehaviour {
 
 	public void Play() {
 		if (Restaurant.instance.SpendEnergy(Restaurant.instance.EnergyCostPerMission)) {
-			
+			for (int i = 0; i < Crits.Length; i++) {
+				Crits [i] = true;
+			}
 			Mission.GoldReward = CalculateGoldReward();
 			Restaurant.instance.SetMission (Mission);
 			AddReadiness (100);
@@ -63,24 +65,27 @@ public class Client : MonoBehaviour {
 	}
 
 	int CalculateGoldReward() {
-		int goldReward = 0;
+		float income = 0;
+		float tip = 0.0f;
 		foreach (var dish in Dishes) {
-			int addition = Restaurant.instance.DishCosts [dish];
-			if (MyCook != null) {
-				foreach (var cookDish in MyCook.Dishes) {
-					if (dish == cookDish) {
-						addition *= 2;
-					}
+			float addition = Restaurant.instance.DishCosts [dish];
+			foreach (var crit in Crits) {
+				if (crit) {
+					tip += 0.1f;
 				}
 			}
-			goldReward += addition;
+			income += addition;
 		}
-		return goldReward;
+		income *= (1.0f + tip);
+		return (int)income;
 	}
 
 	public void Raid() {
 		// Пока не просим рейдтикеты
 		if (/*Restaurant.instance.RaidTickets > 0 &&*/ Restaurant.instance.SpendEnergy (Restaurant.instance.EnergyCostPerMission)) {
+			for (int i = 0; i < Crits.Length; i++) {
+				Crits [i] = true;
+			}
 			Mission.GoldReward = CalculateGoldReward ();
 			AddReadiness (100);
 			Restaurant.instance.RaidMission (Mission);

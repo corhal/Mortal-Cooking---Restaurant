@@ -7,6 +7,7 @@ public class Cook : MonoBehaviour {
 
 	public int Id;
 
+	public int[] DishLengthByLevel;
 	public int[] Dishes;
 	public CookData cookData;
 
@@ -76,7 +77,7 @@ public class Cook : MonoBehaviour {
 		myUI.UpdateLabels ();
 	}
 
-	public void CheckItems(int[] itemCounts) { // здесь хранятся КОЛИЧЕСТВА предметов по ИНДЕКСУ		
+	public bool CheckItems(int[] itemCounts) { // здесь хранятся КОЛИЧЕСТВА предметов по ИНДЕКСУ		
 		int[] itemCollection = CurrentCollection ();
 
 		if (itemCollection != null) {
@@ -87,10 +88,15 @@ public class Cook : MonoBehaviour {
 				}
 			}
 			if (count >= ItemCollectionLength) {
-				Level++;
-				myUI.UpdateLabels ();
+				return true;
 			}
 		}
+		return false;
+	}
+
+	public void LevelUp() {
+		Level++;
+		myUI.UpdateLabels ();
 	}
 
 	public int[] CurrentCollection () {
@@ -155,8 +161,8 @@ public class Cook : MonoBehaviour {
 		CurrentDish = dish;
 		CurrentDishIndex = System.Array.IndexOf (client.Dishes, CurrentDish);
 		client.FreeDishes [CurrentDishIndex] = false;
-		foreach (var cookDish in Dishes) {
-			if (CurrentDish == cookDish) {				
+		for (int i = 0; i < DishLengthByLevel[Level - 1]; i++) {
+			if (CurrentDish == Dishes[i]) {				
 				client.Crits [CurrentDishIndex] = true;
 			}
 		}
@@ -166,9 +172,9 @@ public class Cook : MonoBehaviour {
 
 	void Client_OnDishReady (int dish) {
 		Debug.Log ("Dish ready");
-		currentClient.AddReadiness (1);
 		if (currentClient != null) {
 			currentClient.OnDishReady -= Client_OnDishReady;
+			currentClient.AddReadiness (1);
 		}
 		currentClient = null;
 		CurrentDish = -1;

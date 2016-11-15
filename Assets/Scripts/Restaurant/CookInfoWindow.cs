@@ -5,6 +5,7 @@ using System.Collections;
 public class CookInfoWindow : MonoBehaviour {
 
 	public GameObject ContentContainer;
+	public GameObject LevelUpButtonObject;
 	public Cook CurrentCook;
 	public Text LevelText;
 	public Text DishText;
@@ -37,15 +38,20 @@ public class CookInfoWindow : MonoBehaviour {
 		LevelText.text = levelString;
 
 		string dishString = "Best dishes:\n";
-		for (int i = 0; i < cook.Dishes.Length; i++) {
+		for (int i = 0; i < cook.DishLengthByLevel[cook.Level - 1]; i++) {
 			dishString += "- " + cook.Dishes [i] + "\n";
 		}
 		DishText.text = dishString;
 
 		string goldString = "Gold per client: " + cook.RangeGoldPerClientByLevel [cook.Level - 1, 0] + "-" + cook.RangeGoldPerClientByLevel [cook.Level - 1, 1] + "\n\n";
-		//goldString += "Gold storage lvl: " + cook.GoldStorageLevel + " (stars " + Restaurant.instance.Stars + "/" + cook.StarRequirementsPerStorageLevel[cook.GoldStorageLevel - 1] + ")\n\n";
-		//goldString += "Gold now: " + cook.Gold + "/" + cook.MaxGoldByStorageLevel [cook.GoldStorageLevel - 1];
+
 		GoldText.text = goldString;
+
+		if (cook.Level < 5 && cook.CheckItems(Restaurant.instance.ItemCounts)) {
+			LevelUpButtonObject.gameObject.SetActive (true);
+		} else {
+			LevelUpButtonObject.gameObject.SetActive (false);
+		}
 	}
 
 	void OnDestroy() {

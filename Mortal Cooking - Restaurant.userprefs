@@ -1,14 +1,14 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Restaurant\CashRegister.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Restaurant\Cook.cs">
     <Files>
-      <File FileName="Assets\Scripts\Restaurant\Restaurant.cs" Line="645" Column="5" />
-      <File FileName="Assets\Scripts\Restaurant\Cook.cs" Line="66" Column="4" />
+      <File FileName="Assets\Scripts\Restaurant\Restaurant.cs" Line="440" Column="68" />
+      <File FileName="Assets\Scripts\Restaurant\Cook.cs" Line="175" Column="31" />
       <File FileName="Assets\Scripts\Restaurant\Building.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\Builder.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\CookData.cs" Line="31" Column="36" />
-      <File FileName="Assets\Scripts\Restaurant\Utility.cs" Line="60" Column="17" />
-      <File FileName="Assets\Scripts\Restaurant\Client.cs" Line="46" Column="2" />
+      <File FileName="Assets\Scripts\Restaurant\CookData.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Restaurant\Utility.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Restaurant\Client.cs" Line="11" Column="21" />
       <File FileName="Assets\Scripts\Restaurant\CookUI.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\Chest.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\ChestWindow.cs" Line="1" Column="1" />
@@ -19,22 +19,22 @@
       <File FileName="Assets\Scripts\Restaurant\ShopWindow.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\RestaurantUI.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\MissionData.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\CookInfoWindow.cs" Line="46" Column="142" />
-      <File FileName="Assets\Scripts\Restaurant\RestaurantData.cs" Line="69" Column="73" />
+      <File FileName="Assets\Scripts\Restaurant\CookInfoWindow.cs" Line="16" Column="3" />
+      <File FileName="Assets\Scripts\Restaurant\RestaurantData.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\FloorController.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\DragController.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\Selectable.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Gameplay\Storage.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\CameraDrag.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\Tile.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\ClientData.cs" Line="33" Column="13" />
+      <File FileName="Assets\Scripts\Restaurant\ClientData.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\InventoryWindow.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\InventoryItem.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\ClientUI.cs" Line="51" Column="52" />
+      <File FileName="Assets\Scripts\Restaurant\ClientUI.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\GhostClient.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\CashRegister.cs" Line="69" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\CashRegisterData.cs" Line="10" Column="48" />
-      <File FileName="Assets\Scripts\Restaurant\CashRegisterUI.cs" Line="20" Column="19" />
+      <File FileName="Assets\Scripts\Restaurant\CashRegister.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Restaurant\CashRegisterData.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Restaurant\CashRegisterUI.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
