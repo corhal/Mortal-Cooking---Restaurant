@@ -59,7 +59,22 @@ public class Restaurant : MonoBehaviour {
 	public int[,] RangeClientsPerTickByLevel;
 	public int ClientsTickPeriod;
 
-	public DishRecipe[] DishRecipes;
+	public int[] MaxCuisineByPrestigeLevel;
+	public int DishesInCuisine;
+
+	DishRecipe[] dishRecipes;
+	public DishRecipe[] AllDishRecipes { get { return dishRecipes; } }
+	//public DishRecipe[] DishRecipes;
+	public DishRecipe[] DishRecipes {
+		get {
+			DishRecipe[] recipes = new DishRecipe[DishesInCuisine * (1 + MaxCuisineByPrestigeLevel[PrestigeLevel - 1])];
+			for (int i = 0; i < recipes.Length; i++) {
+				recipes [i] = dishRecipes [i]; // + DishesInCuisine * MaxCuisineByPrestigeLevel [PrestigeLevel - 1]];
+			}
+			return recipes;
+		}
+	}
+
 	//public int[] Dishes;
 	public int[] DishCosts;
 	public int[] Items;
@@ -110,10 +125,11 @@ public class Restaurant : MonoBehaviour {
 		builder.OnBuildingBuilt += Builder_OnBuildingBuilt;
 		CurrentBuildings = new int[10]; // TODO: заменить
 
+		/*Debug.Log ("Making new dishes");
 		DishRecipes = new DishRecipe[40];
 		for (int i = 0; i < DishRecipes.Length; i++) {
 			DishRecipes [i] = new DishRecipe (i, 1, 5, new int[5] {10, 20, 30, 40, 50}); // бывает id 0
-		}
+		}*/
 	}
 
 	public bool SpendStars(int amount) {
@@ -129,8 +145,17 @@ public class Restaurant : MonoBehaviour {
 		NotFirstTime = data.NotFirstTime;
 
 		if (NotFirstTime) {
-			DishRecipes = new DishRecipe[data.DishRecipes.Length];
-			data.DishRecipes.CopyTo (DishRecipes, 0);
+			Debug.Log ("Should copy dishes from data");
+			dishRecipes = new DishRecipe[data.DishRecipes.Length];
+			data.DishRecipes.CopyTo (dishRecipes, 0);
+		} else {
+			Debug.Log ("Making new dishes");
+			dishRecipes = new DishRecipe[40];
+			for (int i = 0; i < dishRecipes.Length; i++) {	
+				int cuisine = i / DishesInCuisine;
+				dishRecipes [i] = new DishRecipe (i, 1, 5, cuisine, new int[5] {10 + cuisine * 10, 20 + cuisine * 10, 30 + cuisine * 10, 40 + cuisine * 10, 50 + cuisine * 10}); // бывает id 0
+				// Debug.Log((i / DishesInCuisine).ToString());
+			}
 		}
 
 		Tiles = FloorContainer.GetComponentsInChildren<Tile>();
@@ -312,16 +337,25 @@ public class Restaurant : MonoBehaviour {
 		return gold;
 	}
 
+	public void CheckoutClient(Client client) {
+		CurrentClients.Remove (client);
+		Destroy (client.gameObject);
+	}
+
 	public void PlayMission(MissionData mission) {
 		if (SpendEnergy(EnergyCostPerMission)) {			
 			mission.GoldReward = CalculateGoldForMission(mission);
 			SetMission (mission);
+			CheckoutClient(mission.gameObject.GetComponent<Client>());
+			if (CurrentClients.Count == 0) {			
+				WelcomeClients ();
+			}
 			ChangeScene (1);
 		}
 	}
 
 	public void RaidMission(MissionData mission) {		
-		//if (RaidTickets > 0) {
+		if (/*Restaurant.instance.RaidTickets > 0 &&*/ Restaurant.instance.SpendEnergy (Restaurant.instance.EnergyCostPerMission)) {			
 			mission.GoldReward = CalculateGoldForMission(mission);
 			raidTickets--; // эта проверка сейчас происходит в клиенте =\
 			AddGold (mission.GoldReward);
@@ -336,6 +370,8 @@ public class Restaurant : MonoBehaviour {
 				}
 			}
 
+			CheckoutClient(mission.gameObject.GetComponent<Client>());
+
 			if (CurrentClients.Count == 0) {			
 				WelcomeClients ();
 			}
@@ -343,7 +379,7 @@ public class Restaurant : MonoBehaviour {
 			OnMissionEnded (mission.GoldReward, itemsWon);
 
 			OnRestaurantInfoChanged ();
-		//}
+		}
 	}
 
 	public void AddPrestige(int amount) {
@@ -354,6 +390,15 @@ public class Restaurant : MonoBehaviour {
 				LevelUpParticles.Play ();
 			}
 		}
+		OnRestaurantInfoChanged ();
+	}
+
+	public void LevelUpDish(DishRecipe dishRecipe) {
+		int[] currentCollection = dishRecipe.CurrentCollection ();
+		foreach (var item in currentCollection) {
+			ItemCounts [item]--;
+		}
+		dishRecipe.LevelUp ();
 		OnRestaurantInfoChanged ();
 	}
 

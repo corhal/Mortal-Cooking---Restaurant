@@ -24,7 +24,7 @@ public class FloorController : MonoBehaviour {
 	void Update() {
 		if (isInFloorMode) {
 			if (Input.GetMouseButton(0) && !Utility.IsPointerOverUIObject()) {
-				Debug.Log (Utility.CastRayToMouse (layerMask));
+				// Debug.Log (Utility.CastRayToMouse (layerMask));
 				if (Utility.CastRayToMouse (layerMask) != null) {					
 					GameObject tile = Utility.CastRayToMouse (layerMask);
 					foreach (var tileSprite in storage.TileSprites) {

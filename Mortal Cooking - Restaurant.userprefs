@@ -1,37 +1,37 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Restaurant\Restaurant.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Restaurant\ClientUI.cs">
     <Files>
-      <File FileName="Assets\Scripts\Restaurant\Restaurant.cs" Line="108" Column="49" />
+      <File FileName="Assets\Scripts\Restaurant\Restaurant.cs" Line="160" Column="3" />
       <File FileName="Assets\Scripts\Restaurant\Building.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\Builder.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\Utility.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\Client.cs" Line="31" Column="3" />
+      <File FileName="Assets\Scripts\Restaurant\Client.cs" Line="40" Column="38" />
       <File FileName="Assets\Scripts\Restaurant\Chest.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\ChestWindow.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\SelectionController.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\Player.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Gameplay\GameController.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\MissionEndWindow.cs" Line="19" Column="21" />
+      <File FileName="Assets\Scripts\Restaurant\MissionEndWindow.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\ShopWindow.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\RestaurantUI.cs" Line="20" Column="2" />
-      <File FileName="Assets\Scripts\Restaurant\MissionData.cs" Line="33" Column="61" />
+      <File FileName="Assets\Scripts\Restaurant\MissionData.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\RestaurantData.cs" Line="44" Column="50" />
-      <File FileName="Assets\Scripts\Restaurant\FloorController.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Restaurant\FloorController.cs" Line="26" Column="34" />
       <File FileName="Assets\Scripts\Restaurant\DragController.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\Selectable.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Gameplay\Storage.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\CameraDrag.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\Tile.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\ClientData.cs" Line="30" Column="36" />
-      <File FileName="Assets\Scripts\Restaurant\InventoryWindow.cs" Line="51" Column="3" />
+      <File FileName="Assets\Scripts\Restaurant\ClientData.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Restaurant\InventoryWindow.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Restaurant\InventoryItem.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\ClientUI.cs" Line="23" Column="28" />
+      <File FileName="Assets\Scripts\Restaurant\ClientUI.cs" Line="24" Column="33" />
       <File FileName="Assets\Scripts\Gameplay\Dish.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Restaurant\DishRecipe.cs" Line="37" Column="9" />
-      <File FileName="Assets\Scripts\Restaurant\MissionStartWindow.cs" Line="36" Column="4" />
-      <File FileName="Assets\Scripts\Restaurant\RecipesWindow.cs" Line="18" Column="3" />
-      <File FileName="Assets\Scripts\Restaurant\RecipeUIElement.cs" Line="28" Column="2" />
+      <File FileName="Assets\Scripts\Restaurant\DishRecipe.cs" Line="45" Column="44" />
+      <File FileName="Assets\Scripts\Restaurant\MissionStartWindow.cs" Line="41" Column="29" />
+      <File FileName="Assets\Scripts\Restaurant\RecipesWindow.cs" Line="52" Column="59" />
+      <File FileName="Assets\Scripts\Restaurant\RecipeUIElement.cs" Line="45" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

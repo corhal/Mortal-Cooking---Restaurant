@@ -8,6 +8,8 @@ public class MissionStartWindow : MonoBehaviour {
 	public MissionData Mission;
 	public GameObject ContentContainer; // =\
 	public Text[] ClientDishes;
+	public Text[] GoldRewards;
+	public Text DropText;
 
 	public Image[] RecipeStars;
 
@@ -33,11 +35,27 @@ public class MissionStartWindow : MonoBehaviour {
 			for (int j = 0; j < dishRecipe.Level; j++) {
 				stars [j].sprite = Player.instance.gameObject.GetComponent<Storage> ().StarSprites [1];
 			}
+			int cost = dishRecipe.CostsByLevel [dishRecipe.Level - 1];
+			int additionalCost = cost - dishRecipe.CostsByLevel [0];
+			string dishCostString = "$" + cost;
+			if (additionalCost > 0) {
+				dishCostString += " (+$" + additionalCost + ")";
+			} 
+			GoldRewards [i].text = dishCostString;
 		}
+		string dropString = "Possible drop:\n";
+		foreach (var item in missionData.ItemRewards) {
+			dropString += "- " + Restaurant.instance.ItemNames [item] + "\n";
+		}
+		DropText.text = dropString;
 	}
 
 	public void Play() {
 		Restaurant.instance.PlayMission (Mission);
+	}
+
+	public void Raid() {
+		Restaurant.instance.RaidMission (Mission);
 	}
 
 }

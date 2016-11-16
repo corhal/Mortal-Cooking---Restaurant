@@ -25,17 +25,21 @@ public class Client : MonoBehaviour {
 		Dishes.CopyTo (Mission.Dishes, 0);
 	}
 
-	public void Play() {
+	/*public void Play() {
 		//Restaurant.instance.PlayMission (Mission);
+		Restaurant.instance.ShowMissionStartWindow(Mission);
+	}*/
+
+	public void ShowWindow() {
 		Restaurant.instance.ShowMissionStartWindow(Mission);
 	}
 
-	public void Raid() {
+	/*public void Raid() {
 		// Пока не просим рейдтикеты
-		if (/*Restaurant.instance.RaidTickets > 0 &&*/ Restaurant.instance.SpendEnergy (Restaurant.instance.EnergyCostPerMission)) {			
+		if (/*Restaurant.instance.RaidTickets > 0 &&*/ /*Restaurant.instance.SpendEnergy (Restaurant.instance.EnergyCostPerMission)) {			
 			Restaurant.instance.RaidMission (Mission);
 		}
-	}
+	}*/
 
 	public void InitializeFromData(ClientData data) {
 		transform.position = new Vector3 (data.x, data.y, data.z);

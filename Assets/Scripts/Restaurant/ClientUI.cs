@@ -24,6 +24,7 @@ public class ClientUI : MonoBehaviour {
 		string dishInfo = "Dishes:\n";
 
 		foreach (var dish in myClient.Dishes) {
+			// Debug.Log (dish.ToString ());
 			int cost = Restaurant.instance.DishCosts [dish];
 			dishInfo += dish + ": $" + cost + "\n";
 
